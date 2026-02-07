@@ -25,12 +25,13 @@
   <div class="row">
       <div class="col-md-4 mb-3">
         <%= form.label :mrp, "MRP (Maximum Retail Price)", class: "form-label" %>
-        <%= form.number_field :mrp, step: 0.01, class: "form-control" %>
+        <%= form.number_field :mrp, step: 0.01, class: "form-control", id: "product_mrp" %>
       </div>
 
       <div class="col-md-4 mb-3">
-        <%= form.label :price, "Selling Price", class: "form-label" %>
-        <%= form.number_field :price, step: 0.01, class: "form-control" %>
+        <%= form.label :price, "Selling Price (Auto-calculated)", class: "form-label" %>
+        <%= form.number_field :price, step: 0.01, class: "form-control", readonly: true, id: "product_price" %>
+        <small class="text-muted">Based on <%= ShopConfig.first&.default_discount_percentage || 0 %>% discount.</small>
       </div>
 
       <div class="col-md-4 mb-3">
@@ -54,3 +55,32 @@
     <%= link_to "Cancel", admin_products_path, class: "btn btn-secondary" %>
   </div>
 <% end %>
+
+<% global_discount = ShopConfig.first&.default_discount_percentage || 0 %>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const mrpInput = document.getElementById("product_mrp");
+    const priceInput = document.getElementById("product_price");
+    const discountPercentage = <%= global_discount %>;
+
+    function calculatePrice() {
+      const mrp = parseFloat(mrpInput.value);
+      if (!isNaN(mrp) && mrp > 0) {
+        const discountAmount = mrp * (discountPercentage / 100);
+        const sellingPrice = mrp - discountAmount;
+        priceInput.value = Math.round(sellingPrice); // Rounding to nearest integer
+      } else {
+        priceInput.value = "";
+      }
+    }
+
+    if (mrpInput && priceInput) {
+      // Calculate on load if MRP exists
+      if (mrpInput.value) calculatePrice();
+
+      // Calculate on change
+      mrpInput.addEventListener("input", calculatePrice);
+    }
+  });
+</script>

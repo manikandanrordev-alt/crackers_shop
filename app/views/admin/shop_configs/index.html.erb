@@ -3,7 +3,7 @@
     <h6 class="m-0 font-weight-bold text-primary">Shop Configuration</h6>
   </div>
   <div class="card-body">
-    <%= form_with(model: [:admin, @shop_config], url: admin_shop_configs_path, method: :put, local: true) do |form| %>
+    <%= form_with(model: [:admin, @shop_config], url: admin_shop_config_path, method: :put, local: true) do |form| %>
       <% if @shop_config.errors.any? %>
         <div class="alert alert-danger">
           <ul>
@@ -17,6 +17,25 @@
       <div class="mb-3">
         <%= form.label :shop_name, class: "form-label" %>
         <%= form.text_field :shop_name, class: "form-control" %>
+      </div>
+
+
+
+      <div class="mb-3">
+        <%= form.label :logo, "Shop Logo", class: "form-label" %>
+        <%= form.file_field :logo, class: "form-control" %>
+        <% if @shop_config.logo.attached? %>
+          <div class="mt-2">
+            <p class="mb-1 text-muted">Current Logo:</p>
+            <%= image_tag @shop_config.logo, class: "img-thumbnail", style: "max-height: 100px;" %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="mb-3">
+        <%= form.label :default_discount_percentage, "Global Discount Percentage (%)", class: "form-label" %>
+        <%= form.number_field :default_discount_percentage, step: 0.01, class: "form-control", placeholder: "e.g. 20.0" %>
+        <small class="text-muted">This percentage will be automatically applied when adding new products.</small>
       </div>
 
       <hr>

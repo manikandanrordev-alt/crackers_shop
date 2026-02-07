@@ -19,33 +19,4 @@
   </div>
 </div>
 
-<script>
-  document.addEventListener("turbo:load", () => {
-    // Intercept turbo:confirm
-    document.addEventListener("turbo:before-cache", () => {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
-        if (modal) modal.hide();
-    });
-  });
 
-  Turbo.setConfirmMethod((message, element) => {
-    const modalElement = document.getElementById('confirmationModal');
-    const modal = new bootstrap.Modal(modalElement);
-    const messageElement = document.getElementById('confirmationMessage');
-    const confirmBtn = document.getElementById('confirmBtn');
-
-    messageElement.textContent = message;
-    modal.show();
-
-    return new Promise((resolve) => {
-        confirmBtn.onclick = () => {
-            modal.hide();
-            resolve(true);
-        };
-        
-        modalElement.addEventListener('hidden.bs.modal', () => {
-            resolve(false);
-        }, { once: true });
-    });
-  });
-</script>

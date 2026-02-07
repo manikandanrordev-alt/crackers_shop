@@ -1,11 +1,16 @@
+<% if @products.any? %>
+<%= form_with url: bulk_destroy_admin_products_path, method: :delete, id: "bulk-delete-form" do |form| %>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
   <h1 class="h3 mb-0 text-gray-800">Products</h1>
-  <%= link_to new_admin_product_path, class: "d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" do %>
-    <i class="fas fa-plus fa-sm text-white-50"></i> New Product
-  <% end %>
+  <div>
+    <button type="submit" class="btn btn-sm btn-danger shadow-sm me-2 d-none" id="bulk-delete-btn" data-turbo-confirm="Are you sure you want to delete selected products?">
+      <i class="fas fa-trash fa-sm text-white-50"></i> Delete Selected
+    </button>
+    <%= link_to new_admin_product_path, class: "d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" do %>
+      <i class="fas fa-plus fa-sm text-white-50"></i> New Product
+    <% end %>
+  </div>
 </div>
-
-<% if @products.any? %>
   <div class="card shadow mb-4">
     <div class="card-header py-3">
       <h6 class="m-0 font-weight-bold text-primary">All Products</h6>
@@ -15,6 +20,7 @@
         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
           <thead>
             <tr>
+              <th style="width: 40px;"><input type="checkbox" id="select-all" class="form-check-input"></th>
               <th>Image</th>
               <th>Name</th>
               <th>Category</th>
@@ -26,6 +32,7 @@
           <tbody>
             <% @products.each do |product| %>
               <tr>
+                <td><%= check_box_tag "product_ids[]", product.id, false, class: "form-check-input product-checkbox" %></td>
                 <td>
                   <% if product.image.attached? %>
                     <%= image_tag product.image.variant(resize_to_limit: [50, 50]), class: "img-thumbnail" %>
@@ -45,7 +52,7 @@
                   <%= link_to edit_admin_product_path(product), class: "btn btn-sm btn-info btn-circle", title: "Edit" do %>
                     <i class="fas fa-edit"></i>
                   <% end %>
-                  <%= button_to admin_product_path(product), method: :delete, class: "btn btn-sm btn-danger btn-circle", form: { style: "display:inline-block;" }, data: { turbo_confirm: "Are you sure?" } do %>
+                  <%= link_to admin_product_path(product), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn btn-sm btn-danger btn-circle" do %>
                     <i class="fas fa-trash"></i>
                   <% end %>
                 </td>
@@ -56,6 +63,35 @@
       </div>
     </div>
   </div>
+<% end %>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const selectAll = document.getElementById("select-all");
+    const checkboxes = document.querySelectorAll(".product-checkbox");
+    const bulkDeleteBtn = document.getElementById("bulk-delete-btn");
+
+    function toggleBulkDeleteBtn() {
+      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+      if (anyChecked) {
+        bulkDeleteBtn.classList.remove("d-none");
+      } else {
+        bulkDeleteBtn.classList.add("d-none");
+      }
+    }
+
+    if (selectAll) {
+      selectAll.addEventListener("change", function() {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        toggleBulkDeleteBtn();
+      });
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", toggleBulkDeleteBtn);
+    });
+  });
+</script>
 <% else %>
   <%= render "shared/empty_state", 
       icon: "fas fa-box-open", 

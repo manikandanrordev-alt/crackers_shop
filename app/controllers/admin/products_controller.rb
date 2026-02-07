@@ -14,7 +14,7 @@ class Admin::ProductsController < Admin::AdminController
     if @product.save
       redirect_to admin_products_path, notice: "Product created successfully."
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -25,13 +25,22 @@ class Admin::ProductsController < Admin::AdminController
     if @product.update(product_params)
       redirect_to admin_products_path, notice: "Product updated successfully."
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
     @product.destroy
     redirect_to admin_products_path, notice: "Product deleted."
+  end
+
+  def bulk_destroy
+    if params[:product_ids].present?
+      Product.where(id: params[:product_ids]).destroy_all
+      redirect_to admin_products_path, notice: "Selected products were successfully deleted."
+    else
+      redirect_to admin_products_path, alert: "No products selected."
+    end
   end
 
   private

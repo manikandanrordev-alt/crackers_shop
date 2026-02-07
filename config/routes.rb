@@ -15,9 +15,15 @@ Rails.application.routes.draw do
   namespace :admin do
     root "dashboard#index"
     resources :users, only: [:index]
-    resources :products
+    resources :products do
+      collection do
+        delete :bulk_destroy
+      end
+    end
     resources :orders, only: [:index, :show]
-    resources :shop_configs, only: [:index, :update]
+    get 'shop_config', to: 'shop_configs#index', as: :shop_config
+    put 'shop_config', to: 'shop_configs#update'
+    patch 'shop_config', to: 'shop_configs#update'
     
     # Fast Billing Routes
     get 'billing', to: 'billing#index'
