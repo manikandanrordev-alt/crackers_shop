@@ -87,8 +87,6 @@ production:
   primary: &primary_production
     <<: *default
     database: raksh_crackers_production
-    username: raksh_crackers
-    password: <%= ENV["RAKSH_CRACKERS_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: raksh_crackers_production_cache
