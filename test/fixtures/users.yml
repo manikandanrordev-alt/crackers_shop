@@ -1,0 +1,13 @@
+one:
+  email: admin@raksh.com
+  encrypted_password: $2a$12$dVmCMXR8vdu2l7n8mMMr1uyQEsS7MkjdxRfGT9IRIO9qWLxhG2aSa
+  role: admin
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+two:
+  email: user@raksh.com
+  encrypted_password: $2a$12$dVmCMXR8vdu2l7n8mMMr1uyQEsS7MkjdxRfGT9IRIO9qWLxhG2aSa
+  role: customer
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

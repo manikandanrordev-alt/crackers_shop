@@ -1,0 +1,35 @@
+<div class="container mt-5 text-center">
+  <div class="card shadow-sm border-0 mx-auto" style="max-width: 600px;">
+    <div class="card-body p-5">
+      <div class="mb-4 text-success">
+        <i class="fas fa-check-circle fa-5x"></i>
+      </div>
+      <h2 class="card-title fw-bold mb-3">Order Placed Successfully!</h2>
+      <p class="text-muted mb-4">Thank you for shopping with us. Your order details are below.</p>
+      
+      <div class="bg-light p-3 rounded text-start mb-4">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Order ID:</span>
+          <span class="fw-bold">#<%= @order.id %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Date:</span>
+          <span class="fw-bold"><%= @order.created_at.strftime("%d %b %Y, %I:%M %p") %></span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Status:</span>
+          <span class="badge bg-info"><%= @order.status.humanize %></span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Total Amount:</span>
+          <span class="fw-bold text-success"><%= number_to_currency(@order.total_amount, unit: "₹") %></span>
+        </div>
+      </div>
+      
+      <div class="d-grid gap-2">
+        <%= link_to "Continue Shopping", root_path, class: "btn btn-primary rounded-pill" %>
+        <%= link_to "My Orders", orders_path, class: "btn btn-outline-secondary rounded-pill" %>
+      </div>
+    </div>
+  </div>
+</div>

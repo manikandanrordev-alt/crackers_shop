@@ -1,0 +1,66 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h2 class="card-title mb-4 text-center">Checkout</h2>
+          
+          <div class="mb-4">
+            <h5 class="mb-3">Order Summary</h5>
+            <ul class="list-group list-group-flush mb-3">
+              <% @cart.cart_items.each do |item| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                  <div>
+                    <span class="fw-bold"><%= item.product.name %></span>
+                    <small class="text-muted d-block">Qty: <%= item.quantity %></small>
+                  </div>
+                  <span><%= number_to_currency(item.product.price * item.quantity, unit: "₹") %></span>
+                </li>
+              <% end %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 fw-bold border-top mt-2 pt-2">
+                 <span>Total Amount</span>
+                 <span class="text-success"><%= number_to_currency(@cart.cart_items.sum { |i| i.product.price * i.quantity }, unit: "₹") %></span>
+              </li>
+            </ul>
+          </div>
+          
+          <%= form_with model: @order, local: true, class: "needs-validation" do |f| %>
+            <h5 class="mb-3">Shipping Details</h5>
+            
+            <div class="mb-3">
+              <%= f.label :name, class: "form-label" %>
+              <%= f.text_field :name, class: "form-control", value: current_user.email.split('@').first.capitalize, required: true %>
+            </div>
+            
+            <div class="mb-3">
+              <%= f.label :phone, "Phone Number", class: "form-label" %>
+              <%= f.telephone_field :phone, class: "form-control", required: true %>
+            </div>
+            
+            <div class="mb-3">
+              <%= f.label :address, class: "form-label" %>
+              <%= f.text_area :address, class: "form-control", rows: 3, required: true %>
+            </div>
+            
+            <h5 class="mb-3 mt-4">Payment Method</h5>
+            <div class="mb-3">
+              <div class="form-check">
+                <%= f.radio_button :payment_method, "cash", class: "form-check-input", checked: true %>
+                <%= f.label :payment_method_cash, "Cash on Delivery", class: "form-check-label" %>
+              </div>
+              <div class="form-check">
+                <%= f.radio_button :payment_method, "upi", class: "form-check-input" %>
+                <%= f.label :payment_method_upi, "UPI Payment", class: "form-check-label" %>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2 mt-4">
+              <%= f.submit "Place Order", class: "btn btn-primary btn-lg rounded-pill" %>
+              <%= link_to "Back to Cart", cart_path, class: "btn btn-outline-secondary rounded-pill" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

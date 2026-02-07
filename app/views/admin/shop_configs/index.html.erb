@@ -1,0 +1,57 @@
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <h6 class="m-0 font-weight-bold text-primary">Shop Configuration</h6>
+  </div>
+  <div class="card-body">
+    <%= form_with(model: [:admin, @shop_config], url: admin_shop_configs_path, method: :put, local: true) do |form| %>
+      <% if @shop_config.errors.any? %>
+        <div class="alert alert-danger">
+          <ul>
+            <% @shop_config.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="mb-3">
+        <%= form.label :shop_name, class: "form-label" %>
+        <%= form.text_field :shop_name, class: "form-control" %>
+      </div>
+
+      <hr>
+      <h6 class="text-secondary mb-3">Social Media & Contacts</h6>
+
+      <div class="mb-3">
+        <%= form.label :whatsapp_number, "WhatsApp Number (with country code, e.g. 919698269709)", class: "form-label" %>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+            <%= form.text_field :whatsapp_number, class: "form-control", placeholder: "919698269709" %>
+        </div>
+        <small class="text-muted">Used for the floating chat button.</small>
+      </div>
+
+      <div class="row">
+          <div class="col-md-6 mb-3">
+            <%= form.label :instagram_url, "Instagram URL", class: "form-label" %>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fab fa-instagram text-danger"></i></span>
+                <%= form.text_field :instagram_url, class: "form-control", placeholder: "https://instagram.com/..." %>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <%= form.label :facebook_url, "Facebook URL", class: "form-label" %>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fab fa-facebook text-primary"></i></span>
+                <%= form.text_field :facebook_url, class: "form-control", placeholder: "https://facebook.com/..." %>
+            </div>
+          </div>
+      </div>
+
+      <div class="mt-4">
+        <%= form.submit "Save Settings", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

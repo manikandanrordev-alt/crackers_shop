@@ -1,0 +1,66 @@
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h3 mb-0 text-gray-800">Products</h1>
+  <%= link_to new_admin_product_path, class: "d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" do %>
+    <i class="fas fa-plus fa-sm text-white-50"></i> New Product
+  <% end %>
+</div>
+
+<% if @products.any? %>
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">All Products</h6>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @products.each do |product| %>
+              <tr>
+                <td>
+                  <% if product.image.attached? %>
+                    <%= image_tag product.image.variant(resize_to_limit: [50, 50]), class: "img-thumbnail" %>
+                  <% else %>
+                    <span class="text-muted">No Image</span>
+                  <% end %>
+                </td>
+                <td><%= product.name %></td>
+                <td><%= product.category %></td>
+                <td><%= number_to_currency(product.price, unit: "₹") %></td>
+                <td>
+                   <span class="badge <%= product.stock_quantity > 0 ? 'bg-success' : 'bg-danger' %>">
+                      <%= product.stock_quantity %>
+                   </span>
+                </td>
+                <td>
+                  <%= link_to edit_admin_product_path(product), class: "btn btn-sm btn-info btn-circle", title: "Edit" do %>
+                    <i class="fas fa-edit"></i>
+                  <% end %>
+                  <%= button_to admin_product_path(product), method: :delete, class: "btn btn-sm btn-danger btn-circle", form: { style: "display:inline-block;" }, data: { turbo_confirm: "Are you sure?" } do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <%= render "shared/empty_state", 
+      icon: "fas fa-box-open", 
+      title: "No Products Found", 
+      description: "Get started by adding your first product to the inventory.", 
+      action_text: "Add Product", 
+      action_path: new_admin_product_path %>
+<% end %>

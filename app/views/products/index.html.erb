@@ -1,0 +1,88 @@
+<div class="container mt-4">
+  <div class="text-center mb-4">
+    <h1 class="display-5 fw-bold text-danger">✨ <%= ShopConfig.first&.shop_name || "Raksh Crackers" %> ✨</h1>
+    <p class="text-muted">Light up your celebrations with our premium crackers!</p>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-12 text-center">
+      <% categories = Product.distinct.pluck(:category) %>
+      <a href="/" class="btn btn-outline-dark btn-sm m-1 <%= 'active' unless params[:category] %>">All</a>
+      <% categories.each do |cat| %>
+        <a href="/?category=<%= cat %>" class="btn btn-outline-dark btn-sm m-1 <%= 'active' if params[:category] == cat %>"><%= cat %></a>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @products.empty? %>
+     <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h4>No Products Found</h4>
+        <p>Sorry, we couldn't find any crackers in this category.</p>
+        <a href="/" class="btn btn-primary btn-sm rounded-pill">View All Products</a>
+     </div>
+  <% else %>
+    <div class="row g-3">
+      <% @products.each do |product| %>
+        <div class="col-md-3 col-6">
+          <div class="card h-100 shadow-sm border-0 product-card">
+            <div class="position-relative overflow-hidden">
+              <% if product.discount_percentage > 0 %>
+                  <span class="position-absolute top-0 start-0 badge bg-danger m-2 shadow z-1" style="font-size: 0.7rem;">(<%= product.discount_percentage %>%)</span>
+              <% end %>
+              
+              <% if product.image.attached? %>
+                  <%= image_tag product.image, class: "card-img-top product-image", loading: "lazy" %>
+              <% else %>
+                  <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                      <span class="text-muted small">No Image</span>
+                  </div>
+              <% end %>
+            </div>
+            <div class="card-body text-center p-2">
+              <h6 class="card-title fw-bold text-truncate mb-1" title="<%= product.name %>"><%= product.name %></h6>
+              <p class="text-muted small mb-1" style="font-size: 0.75rem;"><%= product.category %></p>
+              
+              <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                  <% if product.mrp.present? && product.mrp > product.price %>
+                    <span class="text-muted small" style="text-decoration: line-through;"><%= number_to_currency(product.mrp, unit: "₹", precision: 0) %></span>
+                    <% savings = product.mrp - product.price %>
+                  <% end %>
+                  <span class="fw-bold text-success" style="font-size: 1.2rem;"><%= number_to_currency(product.price, unit: "₹", precision: 0) %></span>
+              </div>
+              <% if product.discount_percentage > 0 %>
+                  <div class="mb-2">
+                     <span class="badge bg-danger rounded-pill">
+                       (<%= product.discount_percentage %>%)
+                       <% if savings %>
+                         | Save <%= number_to_currency(savings, unit: "₹", precision: 0) %>
+                       <% end %>
+                     </span>
+                  </div>
+              <% end %>
+
+              <% if user_signed_in? %>
+                 <%= button_to "Add to Cart", add_item_cart_path(product_id: product.id, amount: 1), method: :post, class: "btn btn-primary btn-sm w-100 rounded-pill" %>
+              <% else %>
+                 <button class="btn btn-warning btn-sm w-100 rounded-pill text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Add to Cart</button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+
+
+<style>
+  .product-image {
+    height: 180px;
+    object-fit: cover; 
+    transition: transform 0.3s;
+  }
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+</style>

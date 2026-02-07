@@ -1,0 +1,35 @@
+<% products.each do |product| %>
+  <div class="col-md-4 mb-3">
+    <div class="card h-100 shadow-sm border-0 product-card-hover" style="cursor: pointer;" 
+         data-action="click->billing#addItem" 
+         data-id="<%= product.id %>" 
+         data-name="<%= product.name %>" 
+         data-price="<%= product.price %>"
+         data-stock="<%= product.stock_quantity %>">
+      
+      <div class="position-relative">
+         <% if product.image.attached? %>
+            <%= image_tag product.image.variant(resize_to_limit: [150, 150]), class: "card-img-top p-2", style: "height: 120px; object-fit: contain;" %>
+         <% else %>
+            <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 120px;">
+               <i class="fas fa-box-open fa-2x"></i>
+            </div>
+         <% end %>
+         <% if product.discount_percentage > 0 %>
+           <span class="position-absolute top-0 start-0 badge bg-danger m-2"><%= product.discount_percentage %>% OFF</span>
+         <% end %>
+      </div>
+
+      <div class="card-body p-2 text-center">
+        <h6 class="card-title font-weight-bold text-truncate" title="<%= product.name %>"><%= product.name %></h6>
+        <div class="d-flex justify-content-center align-items-center gap-2">
+            <% if product.mrp.present? && product.mrp > product.price %>
+               <small class="text-muted text-decoration-line-through">₹<%= product.mrp %></small>
+            <% end %>
+            <span class="text-success font-weight-bold">₹<%= product.price %></span>
+        </div>
+        <small class="text-muted d-block mt-1">Stock: <%= product.stock_quantity %></small>
+      </div>
+    </div>
+  </div>
+<% end %>

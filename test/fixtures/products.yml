@@ -1,0 +1,15 @@
+one:
+  name: "Ground Chakra"
+  price: 50.0
+  mrp: 100.0
+  description: "Spinning firework on the ground"
+  stock_quantity: 100
+  category: "Ground Chakkars"
+
+two:
+  name: "Flower Pot"
+  price: 200.0
+  mrp: 250.0
+  description: "Fountain of sparks"
+  stock_quantity: 50
+  category: "Flower Pots"

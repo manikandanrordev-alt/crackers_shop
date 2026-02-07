@@ -1,0 +1,23 @@
+one:
+  user: one
+  total_amount: 100.0
+  status: 1
+  payment_method: 1
+  discount: 0.0
+  customer_name: "John Doe"
+  customer_address: "123 Main St"
+  customer_phone: "9876543210"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>
+
+two:
+  user: two
+  total_amount: 200.0
+  status: 0
+  payment_method: 0
+  discount: 0.0
+  customer_name: "Jane Doe"
+  customer_address: "456 Main St"
+  customer_phone: "9876543211"
+  created_at: <%= Time.current %>
+  updated_at: <%= Time.current %>

@@ -1,0 +1,111 @@
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Order #<%= @order.id %> Details</h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% @order.order_items.each do |item| %>
+                            <tr>
+                                <td><%= item.product.name %></td>
+                                <td><%= item.quantity %></td>
+                                <td><%= number_to_currency(item.price, unit: "₹") %></td>
+                                <td><%= number_to_currency(item.quantity * item.price, unit: "₹") %></td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-right">Subtotal:</th>
+                            <th><%= number_to_currency(@order.order_items.sum { |i| i.price * i.quantity }, unit: "₹") %></th>
+                        </tr>
+                         <% if @order.discount_percentage > 0 %>
+                          <tr>
+                            <th colspan="3" class="text-right">Discount (<%= @order.discount_percentage %>%)</th>
+                            <th class="text-danger">-<%= number_to_currency(@order.order_items.sum { |i| i.price * i.quantity } * (@order.discount_percentage / 100.0), unit: "₹") %></th>
+                          </tr>
+                        <% end %>
+                        <tr>
+                            <th colspan="3" class="text-right">Total:</th>
+                            <th class="h5"><%= number_to_currency(@order.total_amount, unit: "₹") %></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+             <div class="card-header py-3">
+               <h6 class="m-0 font-weight-bold text-info">Customer Information</h6>
+             </div>
+             <div class="card-body">
+                <dl class="row">
+                  <dt class="col-sm-3">Name:</dt>
+                  <dd class="col-sm-9"><%= @order.customer_name.presence || @order.user.email %></dd>
+
+                  <dt class="col-sm-3">Phone:</dt>
+                  <dd class="col-sm-9"><%= @order.customer_phone %></dd>
+
+                  <dt class="col-sm-3">Address:</dt>
+                  <dd class="col-sm-9"><%= @order.customer_address %></dd>
+
+                  <dt class="col-sm-3">Payment:</dt>
+                  <dd class="col-sm-9 text-uppercase"><%= @order.payment_method %></dd>
+                </dl>
+             </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">Order Status & Tracking</h6>
+            </div>
+            <div class="card-body">
+                <%= form_with(model: [:admin, @order], local: true) do |form| %>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <% Order.statuses.keys.each do |status| %>
+                            <div class="form-check">
+                                <%= form.radio_button :status, status, class: "form-check-input" %>
+                                <%= form.label "status_#{status}", status.humanize, class: "form-check-label" %>
+                            </div>
+                        <% end %>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <%= form.label :lr_number, "LR Number", class: "form-label" %>
+                        <%= form.text_field :lr_number, class: "form-control" %>
+                    </div>
+
+                    <div class="mb-3">
+                        <%= form.label :lr_photo, "Upload LR Photo", class: "form-label" %>
+                        <%= form.file_field :lr_photo, class: "form-control" %>
+                    </div>
+
+                    <% if @order.lr_photo.attached? %>
+                       <div class="mb-3">
+                          <strong>Current LR Photo:</strong><br>
+                          <%= image_tag @order.lr_photo, class: "img-fluid rounded mt-2 border", style: "max-height: 200px;" %>
+                       </div>
+                    <% end %>
+
+                    <%= form.submit "Update Order", class: "btn btn-primary btn-block w-100" %>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+<%= turbo_stream.replace "cart-summary" do %>
+  <div id="cart-summary" class="d-flex justify-content-between mb-2">
+      <span>Subtotal</span>
+      <span class="fw-bold">₹<%= @cart_total %></span>
+  </div>
+  <hr>
+  <div class="d-flex justify-content-between mb-4">
+      <span class="h5">Total</span>
+      <span class="h5 fw-bold text-success">₹<%= @cart_total %></span>
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "cart-item-#{@cart_item.id}-price" do %>
+    <p class="text-success fw-bold mb-0" id="cart-item-<%= @cart_item.id %>-price">₹<%= @cart_item.product.price * @cart_item.quantity %></p>
+<% end %>
