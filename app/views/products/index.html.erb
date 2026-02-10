@@ -31,10 +31,14 @@
                   <span class="position-absolute top-0 start-0 badge bg-danger m-2 shadow z-1" style="font-size: 0.7rem;">(<%= product.discount_percentage %>%)</span>
               <% end %>
               
+              <% if product.stock_quantity.to_i <= 0 %>
+                  <span class="position-absolute top-0 end-0 badge bg-secondary m-2 shadow z-1" style="font-size: 0.7rem;">Out of Stock</span>
+              <% end %>
+              
               <% if product.image.attached? %>
-                  <%= image_tag product.image, class: "card-img-top product-image", loading: "lazy" %>
+                  <%= image_tag product.image, class: "card-img-top product-image", loading: "lazy", style: ("opacity: 0.6; filter: grayscale(100%);" if product.stock_quantity.to_i <= 0) %>
               <% else %>
-                  <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                  <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px; <%= 'opacity: 0.6; filter: grayscale(100%);' if product.stock_quantity.to_i <= 0 %>">
                       <span class="text-muted small">No Image</span>
                   </div>
               <% end %>
@@ -61,10 +65,14 @@
                   </div>
               <% end %>
 
-              <% if user_signed_in? %>
-                 <%= button_to "Add to Cart", add_item_cart_path(product_id: product.id, amount: 1), method: :post, class: "btn btn-primary btn-sm w-100 rounded-pill" %>
+              <% if product.stock_quantity.to_i > 0 %>
+                  <% if user_signed_in? %>
+                     <%= button_to "Add to Cart", add_item_cart_path(product_id: product.id, amount: 1), method: :post, class: "btn btn-primary btn-sm w-100 rounded-pill" %>
+                  <% else %>
+                     <button class="btn btn-warning btn-sm w-100 rounded-pill text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Add to Cart</button>
+                  <% end %>
               <% else %>
-                 <button class="btn btn-warning btn-sm w-100 rounded-pill text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Add to Cart</button>
+                  <button class="btn btn-secondary btn-sm w-100 rounded-pill" disabled>Out of Stock</button>
               <% end %>
             </div>
           </div>

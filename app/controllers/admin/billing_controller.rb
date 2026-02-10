@@ -18,24 +18,11 @@ class Admin::BillingController < Admin::AdminController
     end
 
     Order.transaction do
-      order = Order.create!(
-        user: user,
-        status: :completed,
-        payment_method: params[:payment_method],
-        total_amount: params[:total_amount],
-        customer_name: params[:customer_name],
-        customer_phone: params[:customer_phone],
-        customer_address: params[:customer_address],
-        discount_percentage: params[:discount_percentage] || 0
-      )
+      order = Order.create!(user: user, status: :completed, payment_method: params[:payment_method], total_amount: params[:total_amount], customer_name: params[:customer_name], customer_phone: params[:customer_phone], customer_address: params[:customer_address], discount_percentage: params[:discount_percentage] || 0)
 
       params[:items].each do |item|
         product = Product.find(item[:id])
-        order.order_items.create!(
-          product: product,
-          quantity: item[:quantity],
-          price: product.price
-        )
+        order.order_items.create!(product: product, quantity: item[:quantity], price: product.price)
         product.decrement!(:stock_quantity, item[:quantity].to_i)
       end
     end

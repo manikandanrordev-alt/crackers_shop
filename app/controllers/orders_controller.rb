@@ -17,11 +17,7 @@ class OrdersController < ApplicationController
     if @order.save
       # Move cart items to order items
       @cart.cart_items.each do |cart_item|
-        @order.order_items.create(
-          product: cart_item.product,
-          quantity: cart_item.quantity,
-          price: cart_item.product.price
-        )
+        @order.order_items.create(product: cart_item.product, quantity: cart_item.quantity, price: cart_item.product.price)
       end
       
       # Recalculate and update total to ensure accuracy
