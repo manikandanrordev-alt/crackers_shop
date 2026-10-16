@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   BarChart3, 
   Package, 
@@ -141,11 +141,32 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
   const [posPaymentMethod, setPosPaymentMethod] = useState('cash');
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
 
-  // Voice Assistant for Billing State
+  // Voice Assistant for Billing State (Tamil & English)
   const [isListening, setIsListening] = useState(false);
+  const [voiceLang, setVoiceLang] = useState('ta-IN'); // 'ta-IN' (default) or 'en-IN'
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [voiceFeedback, setVoiceFeedback] = useState('');
   const [voiceError, setVoiceError] = useState('');
+
+  // Keep live references for speech recognition and total calculation
+  const posCartRef = useRef(posCart);
+  posCartRef.current = posCart;
+
+  const posDiscountRef = useRef(posDiscount);
+  posDiscountRef.current = posDiscount;
+
+  // Pre-load speech synthesis voices on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const loadVoices = () => {
+        try {
+          window.speechSynthesis.getVoices();
+        } catch (_e) {}
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
 
   // Bulk Upload State (CSV & PDF)
   const [csvFile, setCsvFile] = useState(null);
@@ -399,35 +420,65 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
     }
   };
 
-  // Text to Speech
-  const speak = (text) => {
+  // Text to Speech with Tamil (ta-IN) & English (en-IN) voice support
+  const speakVoice = (tamilText, englishFallback = '') => {
     try {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.05;
-        window.speechSynthesis.speak(utterance);
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+
+      const isTamil = voiceLang === 'ta-IN' || /[\u0B80-\u0BFF]/.test(tamilText);
+      const textToSpeak = isTamil ? tamilText : (englishFallback || tamilText);
+      if (!textToSpeak) return;
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+
+      if (isTamil) {
+        utterance.lang = 'ta-IN';
+        const taVoice = voices.find((v) => 
+          (v.lang && (v.lang.toLowerCase() === 'ta-in' || v.lang.toLowerCase().startsWith('ta'))) ||
+          (v.name && v.name.toLowerCase().includes('tamil'))
+        );
+        if (taVoice) {
+          utterance.voice = taVoice;
+        }
+      } else {
+        utterance.lang = 'en-IN';
+        const enVoice = voices.find((v) => 
+          v.lang && (v.lang.toLowerCase().startsWith('en-in') || v.lang.toLowerCase().startsWith('en'))
+        );
+        if (enVoice) {
+          utterance.voice = enVoice;
+        }
       }
+
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
     } catch (_e) {}
   };
+
+  const speak = (text) => speakVoice(text, text);
 
   // POS Add to Cart with optional quantity
   const handlePosAddToCart = (prod, qty = 1) => {
     if (!prod) return;
-    const addAmount = Math.max(1, parseInt(qty) || 1);
-    const existing = posCart.find((i) => i.id === prod.id);
-    if (existing) {
-      setPosCart(posCart.map((i) => i.id === prod.id ? { ...i, quantity: i.quantity + addAmount } : i));
-    } else {
-      setPosCart([...posCart, { ...prod, quantity: addAmount }]);
-    }
+    const addAmount = Math.max(1, parseInt(qty, 10) || 1);
+    setPosCart((prevCart) => {
+      const existing = prevCart.find((i) => i.id === prod.id);
+      if (existing) {
+        return prevCart.map((i) => i.id === prod.id ? { ...i, quantity: i.quantity + addAmount } : i);
+      } else {
+        return [...prevCart, { ...prod, quantity: addAmount }];
+      }
+    });
   };
 
   const handlePosUpdateQty = (prodId, qty) => {
     if (qty <= 0) {
-      setPosCart(posCart.filter((i) => i.id !== prodId));
+      setPosCart((prevCart) => prevCart.filter((i) => i.id !== prodId));
     } else {
-      setPosCart(posCart.map((i) => i.id === prodId ? { ...i, quantity: qty } : i));
+      setPosCart((prevCart) => prevCart.map((i) => i.id === prodId ? { ...i, quantity: qty } : i));
     }
   };
 
@@ -457,13 +508,17 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
   const startVoiceBilling = () => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
-      setVoiceError('Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
+      setVoiceError(
+        voiceLang === 'ta-IN'
+          ? 'இந்த உலாவியில் வாய்ஸ் பில்லிங் ஆதரிக்கப்படவில்லை. Google Chrome அல்லது Microsoft Edge பயன்படுத்தவும்.'
+          : 'Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.'
+      );
       return;
     }
 
     try {
       const recognition = new SpeechRec();
-      recognition.lang = 'en-IN';
+      recognition.lang = voiceLang; // 'ta-IN' or 'en-IN'
       recognition.continuous = false;
       recognition.interimResults = false;
 
@@ -471,7 +526,11 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
         setIsListening(true);
         setVoiceError('');
         setVoiceFeedback('');
-        setVoiceTranscript('Listening... Speak product code or name (e.g. "101" or "Add 5 sparklers")');
+        setVoiceTranscript(
+          voiceLang === 'ta-IN'
+            ? '🎤 கேட்கிறது... பட்டாசு கோட் அல்லது பெயரை சொல்லவும் (எ.கா: "101-ல அஞ்சு add பண்ணு", "Sparklers ஒன்னு", "அவ்வளவுதான் 80% discount total சொல்லு")'
+            : '🎤 Listening... Speak product code or name (e.g. "101", "Add 5 sparklers", "Total bill with 80% discount")'
+        );
       };
 
       recognition.onresult = (event) => {
@@ -482,7 +541,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
       recognition.onerror = (event) => {
         setIsListening(false);
         if (event.error !== 'no-speech') {
-          setVoiceError(`Voice error: ${event.error}`);
+          setVoiceError(voiceLang === 'ta-IN' ? `குரல் பிழை: ${event.error}` : `Voice error: ${event.error}`);
         }
       };
 
@@ -502,87 +561,292 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
     setVoiceTranscript('');
   };
 
+  // Comprehensive Tamil & English Numbers Map
+  const TAMIL_NUMBERS = {
+    // Tamil Unicode Script
+    'ஒன்று': 1, 'ஒன்னு': 1, 'ஒரு': 1, 'ஒண்டா': 1,
+    'இரண்டு': 2, 'ரெண்டு': 2, 'ரெண்டும்': 2,
+    'மூன்று': 3, 'மூணு': 3, 'மூணும்': 3,
+    'நான்கு': 4, 'நாலு': 4, 'நாலும்': 4,
+    'ஐந்து': 5, 'அஞ்சு': 5, 'அஞ்சும்': 5,
+    'ஆறு': 6, 'ஆறும்': 6,
+    'ஏழு': 7, 'ஏழும்': 7,
+    'எட்டு': 8, 'எட்டும்': 8,
+    'ஒன்பது': 9, 'ஒன்பதும்': 9,
+    'பத்து': 10, 'பத்தும்': 10,
+    'பதினொன்று': 11, 'பதினோரு': 11, 'பதினொன்னு': 11,
+    'பன்னிரண்டு': 12, 'பன்னண்டு': 12, 'பன்னிரெண்டு': 12,
+    'பதின்மூன்று': 13, 'பதின்மூணு': 13,
+    'பதினான்கு': 14, 'பதினாங்கு': 14, 'பதினாலு': 14,
+    'பதினைந்து': 15, 'பதினாஞ்சு': 15, 'பதினஞ்சு': 15,
+    'பதினாறு': 16, 'பதினேழு': 17, 'பதினெட்டு': 18, 'பத்தொன்பது': 19,
+    'இருபது': 20, 'இருவது': 20,
+    'இருபத்தைந்து': 25, 'இருவத்தஞ்சு': 25,
+    'முப்பது': 30, 'நாற்பது': 40,
+    'ஐம்பது': 50, 'அம்பது': 50,
+    'அறுபது': 60, 'எழுபது': 70,
+    'எண்பது': 80, 'தொண்ணூறு': 90, 'நூறு': 100,
+
+    // Phonetic Tanglish
+    'onnu': 1, 'ondru': 1, 'onnum': 1, 'oru': 1,
+    'rendu': 2, 'irandu': 2, 'rendum': 2,
+    'moonu': 3, 'moondru': 3, 'moonum': 3,
+    'naalu': 4, 'naangu': 4, 'naalum': 4,
+    'anju': 5, 'aindhu': 5, 'ainthu': 5, 'anjum': 5,
+    'aaru': 6, 'aarum': 6,
+    'ezhu': 7, 'yelu': 7, 'ezhum': 7,
+    'ettu': 8, 'ettum': 8,
+    'onbadhu': 9, 'onbathu': 9, 'ombadhu': 9, 'onbadhum': 9,
+    'pathu': 10, 'pathum': 10,
+    'padhinonnu': 11, 'padhinondru': 11,
+    'pannendu': 12, 'pannirendu': 12,
+    'pathinanju': 15, 'padhinanju': 15, 'padhanju': 15,
+    'iruvadhu': 20, 'irubadhu': 20,
+    'iruvathanju': 25, 'irubathanju': 25,
+    'muppadhu': 30, 'muppathu': 30,
+    'aimbadhu': 50, 'ambadhu': 50,
+    'enbadhu': 80, 'enbathu': 80,
+    'nooru': 100,
+
+    // English words
+    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+    'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+    'eleven': 11, 'twelve': 12, 'fifteen': 15, 'twenty': 20,
+    'twenty five': 25, 'thirty': 30, 'fifty': 50, 'eighty': 80, 'hundred': 100
+  };
+
+  // Tamil Cracker Category Aliases
+  const TAMIL_CRACKER_ALIASES = [
+    { terms: ['மத்தாப்பு', 'mathappu', 'sparkler', 'sparklers', 'ஸ்பார்க்லர்'], category: 'Sparklers' },
+    { terms: ['பூந்தொட்டி', 'பூச்சட்டி', 'poonthotti', 'flower pot', 'flower pots', 'flowerpot', 'ஃபிளவர் பாட்'], category: 'Flower Pots' },
+    { terms: ['சக்கரம்', 'தர சக்கரம்', 'chakkaram', 'chakkar', 'chakkars', 'ground chakkar'], category: 'Ground Chakkars' },
+    { terms: ['சரவெடி', 'வாலா', 'saravedi', 'garland', 'garlands', 'சர வெடி', 'வாலா வெடி'], category: 'Garlands' },
+    { terms: ['ராக்கெட்', 'ராக்கட்', 'rocket', 'rockets'], category: 'Rockets' },
+    { terms: ['பாம்', 'வெடி', 'ஆட்டம் பாம்', 'bomb', 'atom bomb', 'sound cracker', 'sound crackers'], category: 'Sound Crackers' },
+    { terms: ['பிஜிலி', 'bijili', 'bijili cracker'], category: 'Bijili' },
+    { terms: ['ஷாட்ஸ்', 'வானவெடி', 'வான வெடி', 'shots', 'sky', 'multi shots', 'aerial'], category: 'Fancy Shots' }
+  ];
+
   const processVoiceCommand = (rawText) => {
     if (!rawText) return;
     const text = rawText.toLowerCase().trim();
     setVoiceTranscript(`Heard: "${rawText}"`);
     setVoiceError('');
 
-    // Check for "clear bill"
-    if (text.includes('clear') || text.includes('reset bill') || text.includes('new bill')) {
+    // 1. Check for "clear bill" (Tamil & English)
+    const isClear = 
+      text.includes('clear') || 
+      text.includes('reset bill') || 
+      text.includes('new bill') ||
+      text.includes('அழி') || 
+      text.includes('புது பில்') || 
+      text.includes('கிளியர்');
+
+    if (isClear) {
       setPosCart([]);
-      setVoiceFeedback('🗑️ Cleared active bill');
-      speak('Bill cleared');
+      setVoiceFeedback('🗑️ பில் அழிக்கப்பட்டது (Bill Cleared)');
+      speakVoice('பில் அழிக்கப்பட்டது. புதிய பில் தொடங்கலாம்.', 'Active bill has been cleared.');
       return;
     }
 
-    // Parse quantity (default 1)
-    let qty = 1;
-    const wordNums = {
-      'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-      'fifteen': 15, 'twenty': 20, 'fifty': 50, 'hundred': 100
-    };
+    // 2. Check for "avlodhan / total bill complete / calculate discount"
+    // e.g. "avlodhan products, total bill complete, total calculate panni, discount-um add pannitu, 80 percentage discount add pannitu total enakku sollu"
+    const isTotalCalcCommand =
+      text.includes('avlodhan') || text.includes('avalthan') || text.includes('avlodha') || 
+      text.includes('அவ்வளவுதான்') || text.includes('அவ்ளோதான்') || text.includes('போதும்') ||
+      text.includes('bill complete') || text.includes('billing complete') || text.includes('complete') || 
+      text.includes('முடிஞ்ச') || text.includes('முடிந்தது') ||
+      text.includes('calculate') || text.includes('கால்குலேட்') || text.includes('கணக்கு') ||
+      text.includes('total sollu') || text.includes('மொத்தம் சொல்லு') || text.includes('total enakku sollu') ||
+      (text.includes('total') && (text.includes('sollu') || text.includes('evlo') || text.includes('சொல்லு') || text.includes('எவ்வளவு') || text.includes('calculate'))) ||
+      (text.includes('discount') && (text.includes('sollu') || text.includes('pannitu') || text.includes('போடு') || text.includes('சேர்') || text.includes('add')));
 
-    const qtyMatch = text.match(/\b(\d+)\b/);
-    if (qtyMatch) {
-      qty = parseInt(qtyMatch[1], 10);
-    } else {
-      for (const [w, n] of Object.entries(wordNums)) {
-        if (text.includes(w)) {
-          qty = n;
+    if (isTotalCalcCommand) {
+      // Look for discount percentage in spoken command (e.g. 80%, 80 percentage, 80 சதவீதம்)
+      let parsedDiscount = null;
+      const discMatch = text.match(/(\d+)\s*(?:%|percent|percentage|சதவீதம்|சதவீத|தள்ளுபடி|discount)/i) ||
+                        text.match(/(?:discount|டிஸ்கவுண்ட்|தள்ளுபடி)\s*(\d+)/i) ||
+                        text.match(/(\d+)\s*(?:percentage|percent)/i);
+
+      if (discMatch) {
+        parsedDiscount = parseInt(discMatch[1] || discMatch[2], 10);
+      } else {
+        // Check number words before percent/percentage/சதவீதம்
+        for (const [w, n] of Object.entries(TAMIL_NUMBERS)) {
+          if (text.includes(`${w} percent`) || text.includes(`${w} percentage`) || text.includes(`${w} சதவீதம்`)) {
+            parsedDiscount = n;
+            break;
+          }
+        }
+      }
+
+      let effectiveDiscount = posDiscountRef.current;
+      if (parsedDiscount !== null && !isNaN(parsedDiscount)) {
+        effectiveDiscount = Math.min(100, Math.max(0, parsedDiscount));
+        setPosDiscount(effectiveDiscount);
+      }
+
+      const currentCart = posCartRef.current;
+      if (!currentCart || currentCart.length === 0) {
+        setVoiceFeedback('⚠️ பில்லில் பொருட்கள் எதுவும் இல்லை');
+        speakVoice(
+          'பில்லில் இன்னும் எந்த பட்டாசும் சேர்க்கப்படவில்லை. முதலில் பொருட்களை சேர்க்கவும்.',
+          'Bill is empty. Please add cracker products first.'
+        );
+        return;
+      }
+
+      const subtotal = currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const discountAmt = Math.round(subtotal * (effectiveDiscount / 100));
+      const finalPayable = Math.max(0, subtotal - discountAmt);
+      const totalItems = currentCart.reduce((sum, item) => sum + item.quantity, 0);
+
+      let tamilSpeech = '';
+      let englishSpeech = '';
+
+      if (effectiveDiscount > 0) {
+        tamilSpeech = `அவ்வளவுதான்! மொத்தம் ${totalItems} பொருட்கள். ${effectiveDiscount} சதவீத தள்ளுபடி போக, நீங்கள் செலுத்த வேண்டிய மொத்த தொகை ரூபாய் ${finalPayable}.`;
+        englishSpeech = `Bill complete. Total ${totalItems} items. After ${effectiveDiscount} percent discount, payable amount is ${finalPayable} rupees.`;
+      } else {
+        tamilSpeech = `அவ்வளவுதான்! மொத்தம் ${totalItems} பொருட்கள். நீங்கள் செலுத்த வேண்டிய மொத்த தொகை ரூபாய் ${finalPayable}.`;
+        englishSpeech = `Bill complete. Total ${totalItems} items. Payable amount is ${finalPayable} rupees.`;
+      }
+
+      setVoiceFeedback(`💰 மொத்தம்: ₹${finalPayable.toLocaleString('en-IN')} (${totalItems} பொருட்கள், ${effectiveDiscount}% தள்ளுபடி)`);
+      speakVoice(tamilSpeech, englishSpeech);
+      return;
+    }
+
+    // 3. Candidate products pool
+    const pool = products.length > 0 ? products : posResults;
+    if (pool.length === 0) {
+      setVoiceError(voiceLang === 'ta-IN' ? 'பொருட்கள் பட்டியல் ஏற்றப்படுகிறது, சற்று பொறுக்கவும்...' : 'Products catalog is still loading, please wait.');
+      return;
+    }
+
+    // Check if remove action is requested
+    const isRemove = 
+      text.includes('remove') || text.includes('delete') || text.includes('cancel') ||
+      text.includes('நீக்கு') || text.includes('வேண்டாம்') || text.includes('venam') ||
+      text.includes('தூக்கு') || text.includes('எடு');
+
+    const words = text.split(/\s+/);
+    let matchedProduct = null;
+    let matchedToken = '';
+
+    // Step A: Search for Product Code with Tamil case markers stripped (e.g. 101-la, 101ல, 101-ல், 101ku)
+    for (const w of words) {
+      const cleanCode = w
+        .toLowerCase()
+        .replace(/(-la|-le|-oda|-ode|-ku|-ukku|la|le|oda|ode|ku|ukku|ல்|ல|க்கு|லேயும்|லையும்|-ல்|-ல|-க்கு)$/i, '')
+        .replace(/[^a-z0-9]/gi, '');
+
+      if (cleanCode) {
+        const found = pool.find((p) => 
+          (p.code && p.code.toLowerCase() === cleanCode.toLowerCase()) || 
+          (p.id && p.id.toString() === cleanCode)
+        );
+        if (found) {
+          matchedProduct = found;
+          matchedToken = w;
           break;
         }
       }
     }
 
-    const isRemove = text.includes('remove') || text.includes('delete') || text.includes('cancel');
-
-    // Candidate products pool
-    const pool = products.length > 0 ? products : posResults;
-    if (pool.length === 0) {
-      setVoiceError('Products catalog is still loading, please try in a moment.');
-      return;
-    }
-
-    // 1. Check for product code match
-    const words = text.split(/\s+/);
-    let matched = null;
-
-    for (const w of words) {
-      const cleanW = w.replace(/[^a-z0-9]/gi, '');
-      if (cleanW) {
-        matched = pool.find((p) => p.code?.toLowerCase() === cleanW.toLowerCase() || p.id?.toString() === cleanW);
-        if (matched) break;
+    // Step B: Extract quantity (excluding the matched product code token)
+    let textForQty = text;
+    if (matchedProduct) {
+      if (matchedToken) {
+        textForQty = textForQty.replace(matchedToken, ' ');
+      }
+      if (matchedProduct.code) {
+        textForQty = textForQty.replace(new RegExp(`\\b${matchedProduct.code}\\b`, 'gi'), ' ');
       }
     }
 
-    // 2. Search by cleaned voice text
-    if (!matched) {
-      const cleanName = text
-        .replace(/\b(add|put|insert|please|give|box|boxes|carton|cartons|packet|packets|pcs|quantity|qty|code|item|remove|delete)\b/gi, ' ')
-        .replace(/\b\d+\b/g, ' ')
-        .trim();
-
-      if (cleanName) {
-        matched = pool.find((p) => p.name?.toLowerCase().includes(cleanName)) ||
-                  pool.find((p) => p.category?.toLowerCase().includes(cleanName));
-      }
-    }
-
-    if (matched) {
-      if (isRemove) {
-        handlePosUpdateQty(matched.id, 0);
-        setVoiceFeedback(`❌ Removed ${matched.name} (Code: ${matched.code || matched.id})`);
-        speak(`Removed ${matched.name}`);
-      } else {
-        handlePosAddToCart(matched, qty);
-        setVoiceFeedback(`✅ Added ${qty}x ${matched.name} (Code: ${matched.code || matched.id})`);
-        speak(`Added ${qty} ${matched.name}`);
+    let qty = 1;
+    const digitMatches = textForQty.match(/\b(\d+)\b/g);
+    if (digitMatches && digitMatches.length > 0) {
+      const parsed = parseInt(digitMatches[0], 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        qty = parsed;
       }
     } else {
-      setVoiceError(`Could not find cracker for "${rawText}". Try saying product code like "101" or name like "Sparklers".`);
-      speak('Cracker not found');
+      // Check Tamil / Tanglish / English number words (longest match first)
+      const sortedWords = Object.keys(TAMIL_NUMBERS).sort((a, b) => b.length - a.length);
+      for (const word of sortedWords) {
+        const regex = new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'i');
+        if (regex.test(textForQty)) {
+          qty = TAMIL_NUMBERS[word];
+          break;
+        }
+      }
+    }
+
+    // Step C: If product not matched by code, match by product name or Tamil cracker aliases
+    if (!matchedProduct) {
+      let cleanText = text;
+      // Strip digits
+      cleanText = cleanText.replace(/\b\d+\b/g, ' ');
+      // Strip number words
+      for (const word of Object.keys(TAMIL_NUMBERS)) {
+        cleanText = cleanText.replace(new RegExp(`(^|\\s|[.,!?])${word}($|\\s|[.,!?])`, 'gi'), ' ');
+      }
+      // Strip command words and fillers
+      cleanText = cleanText
+        .replace(/\b(add|put|insert|give|please|box|boxes|carton|cartons|packet|packets|pcs|quantity|qty|code|item|remove|delete|cancel)\b/gi, ' ')
+        .replace(/\b(add pannu|pannu|podu|kudu|ser|serkavum|eduthuko|venam|remove pannu|product|item)\b/gi, ' ')
+        .replace(/(சேர்க்கவும்|சேர்|போடு|குடு|நீக்கு|வேண்டாம்|பாக்ஸ்|பாக்கெட்|எண்ணிக்கை|பொருட்கள்|பட்டாசு|ஆட்\s*பண்ணு)/gi, ' ')
+        .trim();
+
+      // Check Tamil Cracker Category Aliases
+      for (const alias of TAMIL_CRACKER_ALIASES) {
+        if (alias.terms.some((term) => text.toLowerCase().includes(term.toLowerCase()) || cleanText.toLowerCase().includes(term.toLowerCase()))) {
+          matchedProduct = pool.find((p) => p.category?.toLowerCase() === alias.category.toLowerCase()) ||
+                           pool.find((p) => p.name?.toLowerCase().includes(alias.terms[0].toLowerCase()));
+          if (matchedProduct) break;
+        }
+      }
+
+      // Check direct product name inclusion
+      if (!matchedProduct && cleanText.length >= 2) {
+        matchedProduct = pool.find((p) => p.name?.toLowerCase().includes(cleanText.toLowerCase())) ||
+                         pool.find((p) => p.category?.toLowerCase().includes(cleanText.toLowerCase())) ||
+                         pool.find((p) => cleanText.toLowerCase().includes(p.name?.toLowerCase()));
+      }
+    }
+
+    // Step D: Execute Add or Remove & Speak in Tamil
+    if (matchedProduct) {
+      const prodName = matchedProduct.name;
+      const prodCode = matchedProduct.code || matchedProduct.id;
+
+      if (isRemove) {
+        handlePosUpdateQty(matchedProduct.id, 0);
+        setVoiceFeedback(`❌ ${prodName} (Code: ${prodCode}) பில்லில் இருந்து நீக்கப்பட்டது`);
+        speakVoice(
+          `${prodName} பில்லில் இருந்து நீக்கப்பட்டது.`,
+          `Removed ${prodName} from bill.`
+        );
+      } else {
+        handlePosAddToCart(matchedProduct, qty);
+        setVoiceFeedback(`✅ ${prodName} (Code: ${prodCode}) x ${qty} சேர்க்கப்பட்டது`);
+        speakVoice(
+          `${prodName}, ${qty} சேர்க்கப்பட்டது.`,
+          `Added ${qty} of ${prodName}.`
+        );
+      }
+    } else {
+      setVoiceError(
+        voiceLang === 'ta-IN'
+          ? `பட்டாசு கண்டுபிடிக்க முடியவில்லை: "${rawText}". கோட் (எ.கா: 101) அல்லது பெயரை சொல்லவும்.`
+          : `Could not find cracker for "${rawText}". Try saying product code (e.g. "101") or name.`
+      );
+      speakVoice(
+        'பட்டாசு கண்டுபிடிக்க முடியவில்லை. கோட் நம்பர் அல்லது பெயரை மீண்டும் சொல்லவும்.',
+        'Product not found. Please try saying the product code or name again.'
+      );
     }
   };
 
@@ -856,12 +1120,12 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 boxShadow: isListening ? '0 0 25px rgba(244, 63, 94, 0.35)' : 'none',
                 transition: 'all 0.3s ease'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={isListening ? stopVoiceBilling : startVoiceBilling}
                     style={{
-                      background: isListening ? 'linear-gradient(135deg, #F43F5E, #E11D48)' : 'linear-gradient(135deg, #A855F7, #7E22CE)',
+                      background: isListening ? 'linear-gradient(135deg, #F43F5E, #E11D48)' : 'linear-gradient(135deg, #10B981, #059669)',
                       border: 'none',
                       borderRadius: 10,
                       padding: '10px 18px',
@@ -872,20 +1136,58 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                       alignItems: 'center',
                       gap: 8,
                       cursor: 'pointer',
-                      boxShadow: isListening ? '0 0 15px rgba(244, 63, 94, 0.6)' : '0 0 15px rgba(168, 85, 247, 0.4)'
+                      boxShadow: isListening ? '0 0 18px rgba(244, 63, 94, 0.6)' : '0 0 15px rgba(16, 185, 129, 0.4)'
                     }}
                   >
                     {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-                    <span>{isListening ? 'Listening... Click to Stop' : '🎤 Voice Billing (Click & Speak)'}</span>
+                    <span>{isListening ? (voiceLang === 'ta-IN' ? '🔴 கேட்கிறது... நிறுத்த அழுத்தவும்' : '🔴 Listening... Click to Stop') : (voiceLang === 'ta-IN' ? '🎤 வாய்ஸ் பில்லிங் (பேச அழுத்தவும்)' : '🎤 Voice Billing (Click & Speak)')}</span>
                   </button>
+
+                  {/* Language Toggle: Tamil / English */}
+                  <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.35)', padding: 3, borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                    <button
+                      type="button"
+                      onClick={() => { setVoiceLang('ta-IN'); showToast('குரல் மொழி: தமிழ் (Tamil)'); }}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: 'none',
+                        background: voiceLang === 'ta-IN' ? 'linear-gradient(135deg, #10B981, #059669)' : 'transparent',
+                        color: voiceLang === 'ta-IN' ? '#FFF' : 'var(--text-muted)',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      🇮🇳 தமிழ் (Tamil)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setVoiceLang('en-IN'); showToast('Voice Language: English'); }}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: 'none',
+                        background: voiceLang === 'en-IN' ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'transparent',
+                        color: voiceLang === 'en-IN' ? '#FFF' : 'var(--text-muted)',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      🇬🇧 English
+                    </button>
+                  </div>
 
                   <div>
                     <div style={{ color: '#FFF', fontSize: '0.9rem', fontWeight: 600 }}>
-                      {voiceTranscript || 'Say product code (e.g. "101") or name (e.g. "Add 5 flower pots") to instantly add to bill'}
+                      {voiceTranscript || (voiceLang === 'ta-IN' ? 'பட்டாசு கோட் (101) அல்லது பெயர் (Sparklers) சொல்லி சேர்க்கலாம்' : 'Say product code (e.g. "101") or name to add to bill')}
                     </div>
                     {voiceFeedback && (
-                      <div style={{ color: '#34D399', fontSize: '0.82rem', fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Volume2 size={14} />
+                      <div style={{ color: '#34D399', fontSize: '0.84rem', fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Volume2 size={15} />
                         <span>{voiceFeedback}</span>
                       </div>
                     )}
@@ -897,13 +1199,41 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                   </div>
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                    Say: <strong>"101"</strong> or <strong>"Add 5 of 102"</strong>
-                  </span>
-                  <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                    Say: <strong>"Clear bill"</strong>
-                  </span>
+                {/* Clickable Quick Command Chips */}
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-subtle)', fontWeight: 600 }}>பேசலாம் / Click to test:</span>
+                  <button
+                    type="button"
+                    onClick={() => processVoiceCommand('product code 101-la anju add pannu')}
+                    style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: 6, border: '1px solid var(--border-subtle)', color: 'var(--text-main)', fontSize: '0.74rem', cursor: 'pointer' }}
+                    title="Click to test: 101-la anju add pannu"
+                  >
+                    🎤 "101-la அஞ்சு add pannu"
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => processVoiceCommand('sparklers onnu add pannu')}
+                    style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: 6, border: '1px solid var(--border-subtle)', color: 'var(--text-main)', fontSize: '0.74rem', cursor: 'pointer' }}
+                    title="Click to test: sparklers onnu add pannu"
+                  >
+                    🎤 "Sparklers ஒன்று add pannu"
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => processVoiceCommand('avlodhan products, total calculate panni, discount-um add pannitu, 80 percentage discount add pannitu total enakku sollu')}
+                    style={{ padding: '4px 10px', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 6, border: '1px solid rgba(244, 63, 94, 0.4)', color: '#F43F5E', fontSize: '0.74rem', fontWeight: 700, cursor: 'pointer' }}
+                    title="Click to test: 80% discount and calculate total in Tamil"
+                  >
+                    💰 "அவ்வளவுதான் 80% discount total சொல்லு"
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => processVoiceCommand('clear bill')}
+                    style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', borderRadius: 6, border: '1px solid var(--border-subtle)', color: 'var(--text-muted)', fontSize: '0.74rem', cursor: 'pointer' }}
+                    title="Click to test: clear bill"
+                  >
+                    🗑️ "Clear bill / பில் அழி"
+                  </button>
                 </div>
               </div>
 
