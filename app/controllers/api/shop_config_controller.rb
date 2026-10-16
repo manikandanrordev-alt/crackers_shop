@@ -22,6 +22,17 @@ module Api
       )
 
       if config.update(update_params)
+        if update_params[:default_discount_percentage].present?
+          new_discount = config.default_discount_percentage.to_f
+          if new_discount > 0
+            Product.where.not(mrp: nil).find_each do |p|
+              if p.mrp > 0
+                p.update_columns(price: (p.mrp * (1.0 - (new_discount / 100.0))).round(2))
+              end
+            end
+          end
+        end
+
         render json: {
           success: true,
           message: "Shop configuration updated successfully",

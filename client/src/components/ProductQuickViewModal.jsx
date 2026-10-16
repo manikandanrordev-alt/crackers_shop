@@ -64,26 +64,37 @@ export default function ProductQuickViewModal({ product, onClose, onAddToCart })
           <X size={18} />
         </button>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+        <div className="quickview-layout-grid">
           {/* Visual Side */}
-          <div style={{ background: '#050508', position: 'relative', minHeight: 300 }}>
+          <div className="quickview-visual-wrap">
             <img 
               src={displayImage} 
               alt={product.name}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               onError={(e) => { e.target.src = '/images/cat_giftbox.jpg'; }}
             />
+            {/* Dark vignette overlay to seamlessly blend visual with obsidian noir background */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(5,5,8,0.3) 0%, rgba(5,5,8,0) 40%, rgba(12,10,20,0.85) 100%)',
+              pointerEvents: 'none'
+            }} />
             {product.discount_percentage > 0 && (
               <div style={{
                 position: 'absolute',
-                top: 20,
-                left: 20,
-                background: 'var(--fire-gradient)',
+                top: 16,
+                left: 16,
+                background: 'linear-gradient(135deg, #EF4444 0%, #F43F5E 50%, #BE123C 100%)',
                 color: '#FFF',
                 padding: '6px 14px',
                 borderRadius: 9999,
                 fontWeight: 800,
-                fontSize: '0.85rem'
+                fontSize: '0.82rem',
+                boxShadow: '0 4px 16px rgba(244, 63, 94, 0.65)',
+                zIndex: 5,
+                letterSpacing: '0.02em',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
               }}>
                 -{product.discount_percentage}% WHOLESALE OFF
               </div>
@@ -91,46 +102,46 @@ export default function ProductQuickViewModal({ product, onClose, onAddToCart })
           </div>
 
           {/* Details Side */}
-          <div style={{ padding: '30px 24px', display: 'flex', flexDirection: 'column' }}>
-            <span className="badge-violet" style={{ alignSelf: 'flex-start', marginBottom: 10 }}>
+          <div className="quickview-details-wrap">
+            <span className="badge-violet" style={{ alignSelf: 'flex-start', marginBottom: 8, fontSize: '0.72rem' }}>
               {product.category}
             </span>
 
-            <h2 className="font-heading" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFF', marginBottom: 12, lineHeight: 1.25 }}>
+            <h2 className="font-heading quickview-title" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFF', marginBottom: 10, lineHeight: 1.25 }}>
               {product.name}
             </h2>
 
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
+            <p className="quickview-desc" style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: 18 }}>
               {product.description || 'Authentic Sivakasi direct manufactured premium firework with guaranteed safety certification, sparkling effects, and superior burst brilliance.'}
             </p>
 
             {/* Pricing Box */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
+            <div className="quickview-price-box" style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: '14px 16px', marginBottom: 18 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--violet-light)', fontFamily: 'var(--font-heading)' }}>
+                <span style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--violet-light)', fontFamily: 'var(--font-heading)' }}>
                   ₹{product.price}
                 </span>
                 {product.mrp > product.price && (
-                  <span style={{ fontSize: '1rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+                  <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
                     MRP: ₹{product.mrp}
                   </span>
                 )}
               </div>
               {product.savings > 0 && (
-                <div style={{ fontSize: '0.85rem', color: '#34D399', fontWeight: 700, marginTop: 4 }}>
+                <div style={{ fontSize: '0.82rem', color: '#34D399', fontWeight: 700, marginTop: 4 }}>
                   You Save: ₹{product.savings} (Direct Factory Price)
                 </div>
               )}
             </div>
 
             {/* Safety Badges */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <ShieldCheck size={16} color="#10B981" />
+            <div className="quickview-badges" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                <ShieldCheck size={15} color="#10B981" />
                 <span>100% Green Certified</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <Award size={16} color="var(--violet-primary)" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                <Award size={15} color="var(--violet-primary)" />
                 <span>Standard Sivakasi Brand</span>
               </div>
             </div>

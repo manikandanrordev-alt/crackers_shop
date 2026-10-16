@@ -65,19 +65,29 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
           onError={(e) => { e.target.src = '/images/cat_giftbox.jpg'; }}
         />
 
+        {/* Dark blend overlay */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(180deg, rgba(5,5,8,0.2) 0%, rgba(5,5,8,0) 50%, rgba(12,10,20,0.75) 100%)',
+          pointerEvents: 'none'
+        }} />
+
         {/* Discount Badge */}
         {product.discount_percentage > 0 && (
           <div style={{
             position: 'absolute',
-            top: 12,
-            left: 12,
+            top: 10,
+            left: 10,
             background: 'var(--fire-gradient)',
             color: '#FFF',
-            padding: '4px 10px',
+            padding: '3px 9px',
             borderRadius: 9999,
-            fontSize: '0.75rem',
+            fontSize: '0.72rem',
             fontWeight: 800,
-            boxShadow: '0 4px 12px rgba(244, 63, 94, 0.45)'
+            boxShadow: '0 4px 12px rgba(244, 63, 94, 0.55)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            zIndex: 3
           }}>
             -{product.discount_percentage}% OFF
           </div>
