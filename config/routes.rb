@@ -1,36 +1,67 @@
 Rails.application.routes.draw do
-  get "spin_wheel/index"
-  devise_for :users
+  devise_for :users, skip: [:sessions, :registrations, :passwords]
 
-  root "home#index"
+  # REST API for React Frontend
+  namespace :api do
+    # Authentication & Session
+    get "auth/me", to: "auth#me"
+    post "auth/login", to: "auth#login"
+    post "auth/register", to: "auth#register"
+    delete "auth/logout", to: "auth#logout"
+    post "auth/demo_login", to: "auth#demo_login"
 
-  resources :products, only: [ :index, :show ]
-  resources :orders, only: [ :new, :create, :show, :index ]
-  resource :cart, only: [ :show ] do
-    post :add_item
-    post :remove_item
-    post :update_item
-  end
+    # Shop Configuration
+    get "shop_config", to: "shop_config#show"
+    put "shop_config", to: "shop_config#update"
+    patch "shop_config", to: "shop_config#update"
 
-  namespace :admin do
-    root "dashboard#index"
-    resources :users, only: [ :index ]
-    resources :products do
+    # Products & Categories
+    resources :products, only: [:index, :show, :create, :update, :destroy] do
       collection do
+        get :categories
+        post :bulk_destroy
         delete :bulk_destroy
+        post :import_csv
       end
     end
-    resources :orders, only: [ :index, :show ]
-    get "shop_config", to: "shop_configs#index", as: :shop_config
-    put "shop_config", to: "shop_configs#update"
-    patch "shop_config", to: "shop_configs#update"
 
-    # Fast Billing Routes
-    get "billing", to: "billing#index"
-    post "billing/checkout", to: "billing#checkout"
-    get "billing/search_products", to: "billing#search_products"
+    # Cart
+    resource :cart, only: [:show], controller: "cart" do
+      post :add_item
+      post :update_item
+      post :remove_item
+      post :clear
+    end
+
+    # Orders & Tracking
+    resources :orders, only: [:index, :show, :create, :update] do
+      collection do
+        get :track
+      end
+    end
+
+    # Admin Management
+    namespace :admin do
+      get "dashboard", to: "dashboard#index"
+      get "users", to: "users#index"
+      
+      resources :products, only: [:create, :update, :destroy] do
+        collection do
+          post :bulk_destroy
+          delete :bulk_destroy
+          post :import_csv
+        end
+      end
+
+      resources :orders, only: [:update]
+
+      # Fast Billing (POS)
+      get "billing/products", to: "billing#search_products"
+      post "billing/checkout", to: "billing#checkout"
+    end
   end
 
-  # Spin wheel route
-  post "spin_wheel/spin", to: "spin_wheel#spin"
+  # Fallback to SPA root for all non-API and non-Rails asset requests
+  root "home#index"
+  get "*path", to: "home#index", constraints: ->(req) { !req.path.start_with?("/api", "/rails") }
 end

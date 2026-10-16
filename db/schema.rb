@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_07_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_16_074500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -75,14 +75,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_07_150000) do
     t.text "customer_address"
     t.string "customer_name"
     t.string "customer_phone"
+    t.string "delivery_city"
+    t.string "delivery_hub_address"
+    t.string "delivery_status", default: "Order Confirmed"
     t.decimal "discount"
     t.decimal "discount_percentage", default: "0.0"
+    t.datetime "dispatch_date"
     t.string "lr_number"
+    t.string "order_number"
+    t.integer "parcel_count", default: 1
     t.string "payment_method"
+    t.string "payment_status", default: "Completed"
     t.integer "status"
     t.decimal "total_amount"
+    t.string "transaction_id"
+    t.string "transport_name"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["lr_number"], name: "index_orders_on_lr_number"
+    t.index ["order_number"], name: "index_orders_on_order_number"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
@@ -99,6 +110,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_07_150000) do
   end
 
   create_table "shop_configs", force: :cascade do |t|
+    t.text "address"
     t.datetime "created_at", null: false
     t.decimal "default_discount_percentage", precision: 5, scale: 2
     t.string "facebook_url"

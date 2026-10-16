@@ -2,6 +2,7 @@ class ShopConfig < ApplicationRecord
   validates :shop_name, presence: true, uniqueness: true
   validates :whatsapp_number, presence: true, allow_blank: true
   has_one_attached :logo
+  has_one_attached :pricelist_pdf
   
   validate :validate_social_urls
 

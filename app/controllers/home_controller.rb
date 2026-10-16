@@ -1,5 +1,10 @@
 class HomeController < ApplicationController
   def index
-    @featured_products = Product.limit(4) # Example: Show a few products on home if needed, or just static content
+    dist_index = Rails.root.join("public/dist/index.html")
+    if File.exist?(dist_index)
+      render file: dist_index, layout: false, content_type: "text/html"
+    else
+      render plain: "Please run 'npm run build' inside client/ to compile the React frontend.", status: :ok
+    end
   end
 end

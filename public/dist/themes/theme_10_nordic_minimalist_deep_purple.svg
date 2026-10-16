@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+  <defs>
+    <linearGradient id="gradPrimary_10" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#4C1D95" />
+    </linearGradient>
+    <linearGradient id="bgGrad_10" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#EEF2F6" />
+    </linearGradient>
+    <filter id="shadow_10" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="rgba(0, 0, 0, 0.08)" />
+    </filter>
+    <filter id="glow_10" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1200" height="675" fill="url(#bgGrad_10)" />
+
+  <!-- Top Announcement Bar -->
+  <rect width="1200" height="28" fill="#4C1D95" opacity="0.9" />
+  <text x="600" y="18" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" letter-spacing="1.5" text-anchor="middle">
+    ✨ DIWALI 2026 MEGA WHOLESALE SALE — FLAT 70% OFF SIVAKASI DIRECT FACTORY DISPATCH ✨
+  </text>
+
+  <!-- Navigation Bar -->
+  <rect y="28" width="1200" height="64" fill="rgba(255, 255, 255, 0.98)" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+  
+  <!-- Logo -->
+  <circle cx="56" cy="60" r="18" fill="url(#gradPrimary_10)" />
+  <text x="56" y="65" font-size="16" text-anchor="middle" fill="#FFFFFF">💥</text>
+  <text x="86" y="58" fill="#09090B" font-family="'Cinzel', Georgia, serif" font-size="17" font-weight="900" letter-spacing="0.5">RAKSH CRACKERS</text>
+  <rect x="250" y="48" width="62" height="18" rx="4" fill="rgba(76, 29, 149, 0.08)" stroke="rgba(76, 29, 149, 0.2)" stroke-width="1" />
+  <text x="281" y="61" fill="#4C1D95" font-family="sans-serif" font-size="9" font-weight="800" text-anchor="middle">SIVAKASI</text>
+  <text x="86" y="72" fill="#71717A" font-family="sans-serif" font-size="9" font-weight="600" letter-spacing="0.8">DIRECT FACTORY WHOLESALE</text>
+
+  <!-- Search Bar -->
+  <rect x="360" y="44" width="320" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+  <text x="382" y="65" fill="#71717A" font-family="sans-serif" font-size="11">🔍 Search sparklers, rockets, sky shots...</text>
+
+  <!-- Nav Action Buttons -->
+  <rect x="710" y="44" width="105" height="34" rx="17" fill="rgba(76, 29, 149, 0.08)" stroke="rgba(76, 29, 149, 0.2)" stroke-width="1" />
+  <text x="762" y="65" fill="#8B5CF6" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">✨ Spin &amp; Win</text>
+
+  <rect x="825" y="44" width="80" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+  <text x="865" y="65" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">📦 Orders</text>
+
+  <rect x="915" y="44" width="110" height="34" rx="17" fill="url(#gradPrimary_10)" />
+  <text x="970" y="65" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="800" text-anchor="middle">🛒 Cart (3) ₹1,420</text>
+
+  <rect x="1035" y="44" width="115" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1" />
+  <text x="1092" y="65" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">👑 Admin Panel</text>
+
+  <!-- HERO SECTION -->
+  <!-- Hero Badge -->
+  <rect x="40" y="112" width="230" height="26" rx="13" fill="rgba(76, 29, 149, 0.08)" stroke="rgba(76, 29, 149, 0.2)" stroke-width="1" />
+  <text x="155" y="129" fill="#4C1D95" font-family="sans-serif" font-size="10" font-weight="800" text-anchor="middle">DIRECT SIVAKASI WHOLESALE 2026</text>
+
+  <!-- Hero Headline -->
+  <text x="40" y="172" fill="#09090B" font-family="'Cinzel', Georgia, serif" font-size="32" font-weight="900">
+    Light Up Your Celebrations With
+  </text>
+  <text x="40" y="210" fill="#8B5CF6" font-family="'Cinzel', Georgia, serif" font-size="32" font-weight="900">
+    Pure Royal Brilliance
+  </text>
+  
+  <text x="40" y="240" fill="#71717A" font-family="sans-serif" font-size="12" font-weight="500">
+    Direct from Sivakasi factory doors to your home! 100% Genuine Green Crackers at flat 70% wholesale savings.
+  </text>
+
+  <!-- Hero Buttons -->
+  <rect x="40" y="260" width="190" height="42" rx="21" fill="url(#gradPrimary_10)" />
+  <text x="135" y="286" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="800" text-anchor="middle">Explore 2026 Collection →</text>
+
+  <rect x="242" y="260" width="160" height="42" rx="21" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1" />
+  <text x="322" y="286" fill="#09090B" font-family="sans-serif" font-size="12" font-weight="700" text-anchor="middle">✨ Spin Luck Wheel</text>
+
+  <!-- Countdown Card on Right Side -->
+  <rect x="760" y="110" width="400" height="195" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1.5" filter="url(#shadow_10)" />
+  
+  <rect x="870" y="125" width="180" height="22" rx="11" fill="rgba(76, 29, 149, 0.08)" />
+  <text x="960" y="140" fill="#4C1D95" font-family="sans-serif" font-size="10" font-weight="800" text-anchor="middle">⏱ FESTIVAL COUNTDOWN</text>
+  <text x="960" y="170" fill="#09090B" font-family="sans-serif" font-size="14" font-weight="800" text-anchor="middle">Diwali Dhamaka Booking Closes In</text>
+
+  <!-- 4 Timer Blocks -->
+  <g transform="translate(785, 185)">
+    <rect x="0" y="0" width="75" height="55" rx="10" fill="#EEF2F6" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="37" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="22" font-weight="900" text-anchor="middle">18</text>
+    <text x="37" y="47" fill="#71717A" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">DAYS</text>
+    
+    <rect x="88" y="0" width="75" height="55" rx="10" fill="#EEF2F6" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="125" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="22" font-weight="900" text-anchor="middle">14</text>
+    <text x="125" y="47" fill="#71717A" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">HOURS</text>
+    
+    <rect x="176" y="0" width="75" height="55" rx="10" fill="#EEF2F6" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="213" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="22" font-weight="900" text-anchor="middle">32</text>
+    <text x="213" y="47" fill="#71717A" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">MINS</text>
+    
+    <rect x="264" y="0" width="75" height="55" rx="10" fill="#EEF2F6" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="301" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="22" font-weight="900" text-anchor="middle">45</text>
+    <text x="301" y="47" fill="#71717A" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">SECS</text>
+  </g>
+
+  <!-- Sivakasi Direct Guarantee Strip inside card -->
+  <rect x="785" y="252" width="350" height="38" rx="8" fill="rgba(76, 29, 149, 0.08)" stroke="rgba(76, 29, 149, 0.2)" stroke-width="1" />
+  <text x="800" y="275" font-size="14">🛡️</text>
+  <text x="825" y="269" fill="#8B5CF6" font-family="sans-serif" font-size="10" font-weight="800">100% Genuine Sivakasi Green Crackers</text>
+  <text x="825" y="282" fill="#71717A" font-family="sans-serif" font-size="9">Pan-India Lorry Receipt (LR) tracking dispatch</text>
+
+  <!-- CATEGORY PILLS BAR -->
+  <g transform="translate(40, 320)">
+    <rect x="0" y="0" width="85" height="32" rx="16" fill="url(#gradPrimary_10)" />
+    <text x="42" y="20" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="800" text-anchor="middle">✨ All (21)</text>
+
+    <rect x="95" y="0" width="105" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="147" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">⚡ Sparklers (4)</text>
+
+    <rect x="210" y="0" width="135" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="277" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">💿 Ground Chakkars</text>
+
+    <rect x="355" y="0" width="115" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="412" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">🔥 Flower Pots</text>
+
+    <rect x="480" y="0" width="95" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="527" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">🚀 Rockets</text>
+
+    <rect x="585" y="0" width="105" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="637" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">🎆 Sky Shots</text>
+
+    <rect x="700" y="0" width="125" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="762" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">💥 Sound Crackers</text>
+
+    <rect x="835" y="0" width="125" height="32" rx="16" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="897" y="20" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="600" text-anchor="middle">🎁 Gift Boxes (2)</text>
+  </g>
+
+  <!-- 3 PRODUCT CARDS -->
+  <!-- Card 1 -->
+  <g transform="translate(40, 368)">
+    <rect width="355" height="225" rx="14" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1.5" filter="url(#shadow_10)" />
+    <!-- Image Box -->
+    <rect x="12" y="12" width="120" height="130" rx="10" fill="#EEF2F6" />
+    <text x="72" y="82" font-size="40" text-anchor="middle">✨</text>
+    <rect x="16" y="18" width="56" height="18" rx="9" fill="#DC2626" />
+    <text x="44" y="30" fill="#FFF" font-family="sans-serif" font-size="8" font-weight="800" text-anchor="middle">-70% OFF</text>
+    
+    <!-- Info -->
+    <text x="145" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">SPARKLERS</text>
+    <text x="145" y="52" fill="#09090B" font-family="sans-serif" font-size="13" font-weight="800">10 cm Electric Sparklers</text>
+    <text x="145" y="68" fill="#71717A" font-family="sans-serif" font-size="10">10 Pcs/Box • Smokeless Spark</text>
+
+    <text x="145" y="94" fill="#8B5CF6" font-family="sans-serif" font-size="20" font-weight="900">₹36</text>
+    <text x="190" y="94" fill="#71717A" font-family="sans-serif" font-size="11" text-decoration="line-through">₹120</text>
+    <text x="145" y="110" fill="#059669" font-family="sans-serif" font-size="9" font-weight="700">Save ₹84 Factory Wholesale</text>
+
+    <rect x="145" y="120" width="60" height="18" rx="4" fill="rgba(16, 185, 129, 0.15)" />
+    <text x="175" y="132" fill="#059669" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">● In Stock (250)</text>
+
+    <!-- Bottom Actions -->
+    <rect x="12" y="160" width="331" height="50" rx="8" fill="#EEF2F6" />
+    <rect x="20" y="168" width="80" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="60" y="189" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">-  1  +</text>
+
+    <rect x="110" y="168" width="230" height="34" rx="17" fill="url(#gradPrimary_10)" />
+    <text x="225" y="189" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="800" text-anchor="middle">🛒 Add to Cart (₹36)</text>
+  </g>
+
+  <!-- Card 2 -->
+  <g transform="translate(422, 368)">
+    <rect width="355" height="225" rx="14" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1.5" filter="url(#shadow_10)" />
+    <!-- Image Box -->
+    <rect x="12" y="12" width="120" height="130" rx="10" fill="#EEF2F6" />
+    <text x="72" y="82" font-size="40" text-anchor="middle">🎆</text>
+    <rect x="16" y="18" width="56" height="18" rx="9" fill="#DC2626" />
+    <text x="44" y="30" fill="#FFF" font-family="sans-serif" font-size="8" font-weight="800" text-anchor="middle">-70% OFF</text>
+    
+    <!-- Info -->
+    <text x="145" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">SKY SHOTS</text>
+    <text x="145" y="52" fill="#09090B" font-family="sans-serif" font-size="13" font-weight="800">12-Shot Aerial Pearl Cake</text>
+    <text x="145" y="68" fill="#71717A" font-family="sans-serif" font-size="10">Multi-Color Chrysanthemum</text>
+
+    <text x="145" y="94" fill="#8B5CF6" font-family="sans-serif" font-size="20" font-weight="900">₹285</text>
+    <text x="200" y="94" fill="#71717A" font-family="sans-serif" font-size="11" text-decoration="line-through">₹950</text>
+    <text x="145" y="110" fill="#059669" font-family="sans-serif" font-size="9" font-weight="700">Save ₹665 Factory Wholesale</text>
+
+    <rect x="145" y="120" width="60" height="18" rx="4" fill="rgba(16, 185, 129, 0.15)" />
+    <text x="175" y="132" fill="#059669" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">● In Stock (80)</text>
+
+    <!-- Bottom Actions -->
+    <rect x="12" y="160" width="331" height="50" rx="8" fill="#EEF2F6" />
+    <rect x="20" y="168" width="80" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="60" y="189" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">-  1  +</text>
+
+    <rect x="110" y="168" width="230" height="34" rx="17" fill="url(#gradPrimary_10)" />
+    <text x="225" y="189" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="800" text-anchor="middle">🛒 Add to Cart (₹285)</text>
+  </g>
+
+  <!-- Card 3 -->
+  <g transform="translate(805, 368)">
+    <rect width="355" height="225" rx="14" fill="#F8F9FB" stroke="rgba(0, 0, 0, 0.08)" stroke-width="1.5" filter="url(#shadow_10)" />
+    <!-- Image Box -->
+    <rect x="12" y="12" width="120" height="130" rx="10" fill="#EEF2F6" />
+    <text x="72" y="82" font-size="40" text-anchor="middle">🎁</text>
+    <rect x="16" y="18" width="56" height="18" rx="9" fill="#DC2626" />
+    <text x="44" y="30" fill="#FFF" font-family="sans-serif" font-size="8" font-weight="800" text-anchor="middle">-70% OFF</text>
+    
+    <!-- Info -->
+    <text x="145" y="32" fill="#8B5CF6" font-family="sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">GIFT BOXES</text>
+    <text x="145" y="52" fill="#09090B" font-family="sans-serif" font-size="13" font-weight="800">Emperor VIP Mega Hamper</text>
+    <text x="145" y="68" fill="#71717A" font-family="sans-serif" font-size="10">55 Assorted Family Fireworks</text>
+
+    <text x="145" y="94" fill="#8B5CF6" font-family="sans-serif" font-size="20" font-weight="900">₹1,950</text>
+    <text x="215" y="94" fill="#71717A" font-family="sans-serif" font-size="11" text-decoration="line-through">₹6,500</text>
+    <text x="145" y="110" fill="#059669" font-family="sans-serif" font-size="9" font-weight="700">Save ₹4,550 Factory Wholesale</text>
+
+    <rect x="145" y="120" width="60" height="18" rx="4" fill="rgba(16, 185, 129, 0.15)" />
+    <text x="175" y="132" fill="#059669" font-family="sans-serif" font-size="8" font-weight="700" text-anchor="middle">● In Stock (40)</text>
+
+    <!-- Bottom Actions -->
+    <rect x="12" y="160" width="331" height="50" rx="8" fill="#EEF2F6" />
+    <rect x="20" y="168" width="80" height="34" rx="17" fill="#FFFFFF" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+    <text x="60" y="189" fill="#09090B" font-family="sans-serif" font-size="11" font-weight="700" text-anchor="middle">-  1  +</text>
+
+    <rect x="110" y="168" width="230" height="34" rx="17" fill="url(#gradPrimary_10)" />
+    <text x="225" y="189" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="800" text-anchor="middle">🛒 Add to Cart (₹1950)</text>
+  </g>
+
+  <!-- BOTTOM FOOTER SWATCH BAR -->
+  <rect y="605" width="1200" height="70" fill="#E2E8F0" stroke="rgba(0, 0, 0, 0.06)" stroke-width="1" />
+  
+  <text x="40" y="635" fill="#09090B" font-family="sans-serif" font-size="15" font-weight="800">
+    THEME 10: NORDIC MINIMALIST & DEEP PURPLE
+  </text>
+  <text x="40" y="655" fill="#8B5CF6" font-family="sans-serif" font-size="11" font-weight="700">
+    Style: Clean High-Contrast Light • Zero Orange/Yellow Clutter • Elite Prime UI
+  </text>
+
+  <!-- Color Swatches on right -->
+  <g transform="translate(740, 620)">
+    
+      <g transform="translate(0, 0)">
+        <rect width="26" height="26" rx="6" fill="#FFFFFF" stroke="#FFF" stroke-width="1" />
+        <text x="32" y="17" fill="#09090B" font-family="monospace" font-size="10" font-weight="600">#FFFFFF</text>
+      </g>
+    
+      <g transform="translate(85, 0)">
+        <rect width="26" height="26" rx="6" fill="#F8F9FB" stroke="#FFF" stroke-width="1" />
+        <text x="32" y="17" fill="#09090B" font-family="monospace" font-size="10" font-weight="600">#F8F9FB</text>
+      </g>
+    
+      <g transform="translate(170, 0)">
+        <rect width="26" height="26" rx="6" fill="#4C1D95" stroke="#FFF" stroke-width="1" />
+        <text x="32" y="17" fill="#09090B" font-family="monospace" font-size="10" font-weight="600">#4C1D95</text>
+      </g>
+    
+      <g transform="translate(255, 0)">
+        <rect width="26" height="26" rx="6" fill="#8B5CF6" stroke="#FFF" stroke-width="1" />
+        <text x="32" y="17" fill="#09090B" font-family="monospace" font-size="10" font-weight="600">#8B5CF6</text>
+      </g>
+    
+      <g transform="translate(340, 0)">
+        <rect width="26" height="26" rx="6" fill="#09090B" stroke="#FFF" stroke-width="1" />
+        <text x="32" y="17" fill="#09090B" font-family="monospace" font-size="10" font-weight="600">#09090B</text>
+      </g>
+    
+  </g>
+
+</svg>

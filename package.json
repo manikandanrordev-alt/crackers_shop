@@ -1,0 +1,11 @@
+{
+  "name": "crackers-shop",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Raksh Crackers - Modern React & Rails Wholesale E-Commerce Store",
+  "scripts": {
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "rails": "bin/rails server -p 3000"
+  }
+}

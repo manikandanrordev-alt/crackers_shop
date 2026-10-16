@@ -70,3 +70,5 @@ end
 gem "devise"
 gem "faker"
 gem "cloudinary"
+
+gem "rack-cors", "~> 3.0"
