@@ -1,0 +1,26 @@
+databases:
+  - name: crackers-db
+    databaseName: crackers_shop_production
+    user: crackers_user
+    plan: free
+
+services:
+  - type: web
+    name: crackers-shop
+    runtime: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rails db:prepare && bundle exec rails db:seed && bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: crackers-db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
