@@ -1,0 +1,11 @@
+one:
+  shop_name: "Raksh Crackers Test Shop"
+  whatsapp_number: "919698269709"
+  instagram_url: "https://instagram.com/raksh"
+  facebook_url: "https://facebook.com/raksh"
+
+two:
+  shop_name: "Another Shop"
+  whatsapp_number: "919876543210"
+  instagram_url: ""
+  facebook_url: ""
