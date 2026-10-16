@@ -70,6 +70,7 @@ module Api
     def product_payload(product)
       {
         id: product.id,
+        code: product.code,
         name: product.name,
         category: product.category,
         description: product.description,

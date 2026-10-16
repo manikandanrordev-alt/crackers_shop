@@ -38,6 +38,7 @@ export default function App() {
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [adminInitialTab, setAdminInitialTab] = useState('dashboard');
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [recentOrderSuccess, setRecentOrderSuccess] = useState(null);
 
@@ -51,6 +52,14 @@ export default function App() {
   const applyRoute = (pathname) => {
     const p = (pathname || '/').replace(/\/$/, '') || '/';
     if (p === '/admin') {
+      setAdminInitialTab('dashboard');
+      setIsAdminOpen(true);
+      setIsOrdersOpen(false);
+      setIsTrackingOpen(false);
+      setIsCartOpen(false);
+      setIsCheckoutOpen(false);
+    } else if (p === '/billing') {
+      setAdminInitialTab('billing');
       setIsAdminOpen(true);
       setIsOrdersOpen(false);
       setIsTrackingOpen(false);
@@ -300,6 +309,7 @@ export default function App() {
         onLogout={handleLogout}
         onOpenOrders={() => navigateTo('/orders')}
         onOpenAdmin={() => navigateTo('/admin')}
+        onOpenBilling={() => navigateTo('/billing')}
         onOpenTracking={() => navigateTo('/track')}
         activeTab={activeTab}
         setActiveTab={(tab) => navigateTo(tab === 'stock' ? '/stock' : '/')}
@@ -704,6 +714,7 @@ export default function App() {
         <AdminPortal
           shopConfig={shopConfig}
           user={user}
+          initialTab={adminInitialTab}
           onConfigUpdated={(cfg) => setShopConfig(cfg)}
           onClose={handleCloseAdmin}
         />

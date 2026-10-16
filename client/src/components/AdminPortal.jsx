@@ -21,18 +21,26 @@ import {
   FileSpreadsheet,
   UploadCloud,
   FileText,
-  Download,
   CheckCircle,
   Navigation,
-  Clock
+  Clock,
+  Mic,
+  MicOff,
+  Volume2
 } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose }) {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'billing' | 'products' | 'orders' | 'users' | 'settings'
+export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose, initialTab = 'dashboard' }) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'dashboard'); // 'dashboard' | 'billing' | 'products' | 'orders' | 'users' | 'settings'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   if (!user?.is_admin) {
     return (
@@ -83,6 +91,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
 
   // Product Form State
   const [prodForm, setProdForm] = useState({
+    code: '',
     name: '',
     category: 'Sparklers',
     mrp: '',
@@ -129,7 +138,14 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
   const [posDiscount, setPosDiscount] = useState(0);
   const [posCustomerName, setPosCustomerName] = useState('');
   const [posCustomerPhone, setPosCustomerPhone] = useState('');
+  const [posPaymentMethod, setPosPaymentMethod] = useState('cash');
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
+
+  // Voice Assistant for Billing State
+  const [isListening, setIsListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [voiceFeedback, setVoiceFeedback] = useState('');
+  const [voiceError, setVoiceError] = useState('');
 
   // Bulk Upload State (CSV & PDF)
   const [csvFile, setCsvFile] = useState(null);
@@ -196,17 +212,22 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
     loadUsers();
   }, []);
 
-  // POS Search products
+  // POS Search products & Load on Billing Tab
   useEffect(() => {
     if (activeTab === 'billing') {
+      if (products.length === 0) {
+        loadProducts();
+      }
       const timer = setTimeout(async () => {
         try {
           const res = await api.searchBillingProducts(posSearch);
-          setPosResults(res.products || []);
+          if (res?.products) {
+            setPosResults(res.products);
+          }
         } catch (e) {
           console.error(e);
         }
-      }, 200);
+      }, 150);
       return () => clearTimeout(timer);
     }
   }, [posSearch, activeTab]);
@@ -378,13 +399,27 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
     }
   };
 
-  // POS Add to Cart
-  const handlePosAddToCart = (prod) => {
+  // Text to Speech
+  const speak = (text) => {
+    try {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.05;
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (_e) {}
+  };
+
+  // POS Add to Cart with optional quantity
+  const handlePosAddToCart = (prod, qty = 1) => {
+    if (!prod) return;
+    const addAmount = Math.max(1, parseInt(qty) || 1);
     const existing = posCart.find((i) => i.id === prod.id);
     if (existing) {
-      setPosCart(posCart.map((i) => i.id === prod.id ? { ...i, quantity: i.quantity + 1 } : i));
+      setPosCart(posCart.map((i) => i.id === prod.id ? { ...i, quantity: i.quantity + addAmount } : i));
     } else {
-      setPosCart([...posCart, { ...prod, quantity: 1 }]);
+      setPosCart([...posCart, { ...prod, quantity: addAmount }]);
     }
   };
 
@@ -393,6 +428,161 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
       setPosCart(posCart.filter((i) => i.id !== prodId));
     } else {
       setPosCart(posCart.map((i) => i.id === prodId ? { ...i, quantity: qty } : i));
+    }
+  };
+
+  // Keyboard Enter Quick-Add in POS Search
+  const handlePosSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = posSearch.trim().toLowerCase();
+      if (!q) return;
+
+      const candidateList = posResults.length > 0 ? posResults : products;
+      // Match exact code first, then exact ID, then first matching name
+      const match = candidateList.find((p) => p.code?.toLowerCase() === q) ||
+                    candidateList.find((p) => p.id?.toString() === q) ||
+                    candidateList.find((p) => p.name?.toLowerCase().includes(q)) ||
+                    candidateList[0];
+
+      if (match) {
+        handlePosAddToCart(match, 1);
+        setPosSearch('');
+        showToast(`Added ${match.name} (Code: ${match.code || match.id}) to bill`);
+      }
+    }
+  };
+
+  // Voice Assistant Logic
+  const startVoiceBilling = () => {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      setVoiceError('Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRec();
+      recognition.lang = 'en-IN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceError('');
+        setVoiceFeedback('');
+        setVoiceTranscript('Listening... Speak product code or name (e.g. "101" or "Add 5 sparklers")');
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        processVoiceCommand(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        if (event.error !== 'no-speech') {
+          setVoiceError(`Voice error: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (err) {
+      setIsListening(false);
+      setVoiceError(err.message || 'Microphone access failed.');
+    }
+  };
+
+  const stopVoiceBilling = () => {
+    setIsListening(false);
+    setVoiceTranscript('');
+  };
+
+  const processVoiceCommand = (rawText) => {
+    if (!rawText) return;
+    const text = rawText.toLowerCase().trim();
+    setVoiceTranscript(`Heard: "${rawText}"`);
+    setVoiceError('');
+
+    // Check for "clear bill"
+    if (text.includes('clear') || text.includes('reset bill') || text.includes('new bill')) {
+      setPosCart([]);
+      setVoiceFeedback('🗑️ Cleared active bill');
+      speak('Bill cleared');
+      return;
+    }
+
+    // Parse quantity (default 1)
+    let qty = 1;
+    const wordNums = {
+      'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+      'fifteen': 15, 'twenty': 20, 'fifty': 50, 'hundred': 100
+    };
+
+    const qtyMatch = text.match(/\b(\d+)\b/);
+    if (qtyMatch) {
+      qty = parseInt(qtyMatch[1], 10);
+    } else {
+      for (const [w, n] of Object.entries(wordNums)) {
+        if (text.includes(w)) {
+          qty = n;
+          break;
+        }
+      }
+    }
+
+    const isRemove = text.includes('remove') || text.includes('delete') || text.includes('cancel');
+
+    // Candidate products pool
+    const pool = products.length > 0 ? products : posResults;
+    if (pool.length === 0) {
+      setVoiceError('Products catalog is still loading, please try in a moment.');
+      return;
+    }
+
+    // 1. Check for product code match
+    const words = text.split(/\s+/);
+    let matched = null;
+
+    for (const w of words) {
+      const cleanW = w.replace(/[^a-z0-9]/gi, '');
+      if (cleanW) {
+        matched = pool.find((p) => p.code?.toLowerCase() === cleanW.toLowerCase() || p.id?.toString() === cleanW);
+        if (matched) break;
+      }
+    }
+
+    // 2. Search by cleaned voice text
+    if (!matched) {
+      const cleanName = text
+        .replace(/\b(add|put|insert|please|give|box|boxes|carton|cartons|packet|packets|pcs|quantity|qty|code|item|remove|delete)\b/gi, ' ')
+        .replace(/\b\d+\b/g, ' ')
+        .trim();
+
+      if (cleanName) {
+        matched = pool.find((p) => p.name?.toLowerCase().includes(cleanName)) ||
+                  pool.find((p) => p.category?.toLowerCase().includes(cleanName));
+      }
+    }
+
+    if (matched) {
+      if (isRemove) {
+        handlePosUpdateQty(matched.id, 0);
+        setVoiceFeedback(`❌ Removed ${matched.name} (Code: ${matched.code || matched.id})`);
+        speak(`Removed ${matched.name}`);
+      } else {
+        handlePosAddToCart(matched, qty);
+        setVoiceFeedback(`✅ Added ${qty}x ${matched.name} (Code: ${matched.code || matched.id})`);
+        speak(`Added ${qty} ${matched.name}`);
+      }
+    } else {
+      setVoiceError(`Could not find cracker for "${rawText}". Try saying product code like "101" or name like "Sparklers".`);
+      speak('Cracker not found');
     }
   };
 
@@ -649,51 +839,173 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               </div>
 
+              {/* Voice Billing Console Banner */}
+              <div style={{
+                background: isListening 
+                  ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%)' 
+                  : 'linear-gradient(135deg, rgba(168, 85, 247, 0.12) 0%, rgba(12, 10, 20, 0.95) 100%)',
+                border: isListening ? '1px solid #F43F5E' : '1px solid var(--border-violet)',
+                borderRadius: 14,
+                padding: '14px 18px',
+                marginBottom: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 14,
+                boxShadow: isListening ? '0 0 25px rgba(244, 63, 94, 0.35)' : 'none',
+                transition: 'all 0.3s ease'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <button
+                    type="button"
+                    onClick={isListening ? stopVoiceBilling : startVoiceBilling}
+                    style={{
+                      background: isListening ? 'linear-gradient(135deg, #F43F5E, #E11D48)' : 'linear-gradient(135deg, #A855F7, #7E22CE)',
+                      border: 'none',
+                      borderRadius: 10,
+                      padding: '10px 18px',
+                      color: '#FFF',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      cursor: 'pointer',
+                      boxShadow: isListening ? '0 0 15px rgba(244, 63, 94, 0.6)' : '0 0 15px rgba(168, 85, 247, 0.4)'
+                    }}
+                  >
+                    {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                    <span>{isListening ? 'Listening... Click to Stop' : '🎤 Voice Billing (Click & Speak)'}</span>
+                  </button>
+
+                  <div>
+                    <div style={{ color: '#FFF', fontSize: '0.9rem', fontWeight: 600 }}>
+                      {voiceTranscript || 'Say product code (e.g. "101") or name (e.g. "Add 5 flower pots") to instantly add to bill'}
+                    </div>
+                    {voiceFeedback && (
+                      <div style={{ color: '#34D399', fontSize: '0.82rem', fontWeight: 700, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Volume2 size={14} />
+                        <span>{voiceFeedback}</span>
+                      </div>
+                    )}
+                    {voiceError && (
+                      <div style={{ color: '#FB7185', fontSize: '0.82rem', fontWeight: 600, marginTop: 2 }}>
+                        ⚠️ {voiceError}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
+                    Say: <strong>"101"</strong> or <strong>"Add 5 of 102"</strong>
+                  </span>
+                  <span style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
+                    Say: <strong>"Clear bill"</strong>
+                  </span>
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 24 }}>
                 {/* Product Search & Catalog List */}
                 <div className="glass-card" style={{ padding: 20, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ position: 'relative', marginBottom: 16 }}>
-                    <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
-                      type="text"
-                      placeholder="Type cracker name or category (e.g. sparklers, 1000 wala)..."
-                      value={posSearch}
-                      onChange={(e) => setPosSearch(e.target.value)}
-                      className="input-prime"
-                      style={{ paddingLeft: 40 }}
-                      autoFocus
-                    />
+                  <div style={{ position: 'relative', marginBottom: 14, display: 'flex', gap: 10 }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        placeholder="Type Code (e.g. 101) or Name & press Enter to add..."
+                        value={posSearch}
+                        onChange={(e) => setPosSearch(e.target.value)}
+                        onKeyDown={handlePosSearchKeyDown}
+                        className="input-prime"
+                        style={{ paddingLeft: 40 }}
+                        autoFocus
+                      />
+                    </div>
+                    {posSearch && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const candidateList = posResults.length > 0 ? posResults : products;
+                          const q = posSearch.trim().toLowerCase();
+                          const match = candidateList.find(p => p.code?.toLowerCase() === q) ||
+                                        candidateList.find(p => p.id?.toString() === q) ||
+                                        candidateList.find(p => p.name?.toLowerCase().includes(q)) ||
+                                        candidateList[0];
+                          if (match) {
+                            handlePosAddToCart(match, 1);
+                            setPosSearch('');
+                            showToast(`Added ${match.name} (Code: ${match.code || match.id}) to bill`);
+                          }
+                        }}
+                        className="btn-prime"
+                        style={{ padding: '0 16px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                      >
+                        + Add to Bill
+                      </button>
+                    )}
                   </div>
 
                   <div style={{ flex: 1, maxHeight: 520, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {(posResults.length > 0 ? posResults : products).map((p) => (
-                      <div 
-                        key={p.id}
-                        onClick={() => handlePosAddToCart(p)}
-                        style={{
-                          padding: '12px 14px',
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid var(--border-subtle)',
-                          borderRadius: 10,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        <div>
-                          <div style={{ color: '#FFF', fontWeight: 600, fontSize: '0.9rem' }}>{p.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            {p.category} • Stock: <span style={{ color: p.stock_quantity > 0 ? '#34D399' : '#F87171' }}>{p.stock_quantity}</span>
+                    {((posSearch.trim() ? posResults : (posResults.length > 0 ? posResults : products)).length === 0) ? (
+                      <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-muted)' }}>
+                        No product matching "{posSearch}". You can speak via voice button or press Enter.
+                      </div>
+                    ) : (
+                      (posSearch.trim() ? posResults : (posResults.length > 0 ? posResults : products)).map((p) => (
+                        <div 
+                          key={p.id}
+                          onClick={() => handlePosAddToCart(p, 1)}
+                          style={{
+                            padding: '12px 14px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: 6,
+                              fontSize: '0.85rem',
+                              fontWeight: 800,
+                              fontFamily: 'monospace',
+                              background: 'rgba(168, 85, 247, 0.18)',
+                              color: 'var(--violet-bright)',
+                              border: '1px solid var(--border-violet)',
+                              minWidth: 46,
+                              textAlign: 'center'
+                            }}>
+                              {p.code || `#${p.id}`}
+                            </span>
+                            <div>
+                              <div style={{ color: '#FFF', fontWeight: 600, fontSize: '0.9rem' }}>{p.name}</div>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                {p.category} • Stock: <span style={{ color: p.stock_quantity > 0 ? '#34D399' : '#F87171' }}>{p.stock_quantity} left</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div>
+                              <div style={{ fontWeight: 800, color: 'var(--violet-bright)', fontSize: '1rem' }}>₹{p.price}</div>
+                              {p.mrp > p.price && (
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>₹{p.mrp}</div>
+                              )}
+                            </div>
+                            <span style={{ padding: '4px 10px', borderRadius: 6, background: 'rgba(168, 85, 247, 0.15)', color: 'var(--violet-light)', fontSize: '0.8rem', fontWeight: 700 }}>
+                              + Add
+                            </span>
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 800, color: 'var(--violet-bright)', fontSize: '1rem' }}>₹{p.price}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>₹{p.mrp}</div>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -908,6 +1220,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                             onChange={(e) => setSelectedProductIds(e.target.checked ? products.map(p => p.id) : [])}
                           />
                         </th>
+                        <th style={{ padding: '10px 12px', width: 90 }}>Code</th>
                         <th style={{ padding: '10px 12px' }}>Product</th>
                         <th style={{ padding: '10px 12px' }}>Category</th>
                         <th style={{ padding: '10px 12px' }}>MRP</th>
@@ -929,6 +1242,20 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                                   setSelectedProductIds(e.target.checked ? [...selectedProductIds, p.id] : selectedProductIds.filter(id => id !== p.id));
                                 }}
                               />
+                            </td>
+                            <td style={{ padding: '12px' }}>
+                              <span style={{ 
+                                fontFamily: 'monospace', 
+                                fontWeight: 700, 
+                                color: 'var(--violet-bright)', 
+                                background: 'rgba(168,85,247,0.15)', 
+                                padding: '3px 8px', 
+                                borderRadius: 4, 
+                                border: '1px solid var(--border-violet)', 
+                                fontSize: '0.82rem' 
+                              }}>
+                                {p.code || `#${p.id}`}
+                              </span>
                             </td>
                             <td style={{ padding: '12px' }}>
                               <div style={{ color: '#FFF', fontWeight: 600 }}>{p.name}</div>
@@ -992,17 +1319,32 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                     </h3>
 
                     <form onSubmit={handleSaveProduct}>
-                      <div style={{ marginBottom: 14 }}>
-                        <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 6 }}>
-                          Product Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={prodForm.name}
-                          onChange={(e) => setProdForm({ ...prodForm, name: e.target.value })}
-                          className="input-prime"
-                        />
+                      <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12, marginBottom: 14 }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 6 }}>
+                            Product Code
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 101"
+                            value={prodForm.code}
+                            onChange={(e) => setProdForm({ ...prodForm, code: e.target.value })}
+                            className="input-prime"
+                            style={{ fontFamily: 'monospace', fontWeight: 700 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 6 }}>
+                            Product Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={prodForm.name}
+                            onChange={(e) => setProdForm({ ...prodForm, name: e.target.value })}
+                            className="input-prime"
+                          />
+                        </div>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>

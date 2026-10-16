@@ -129,9 +129,25 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
       {/* Content Body */}
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-            {product.category}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {product.code && (
+              <span style={{ 
+                padding: '2px 6px', 
+                borderRadius: 4, 
+                fontSize: '0.72rem', 
+                fontWeight: 700, 
+                fontFamily: 'monospace',
+                background: 'rgba(168, 85, 247, 0.2)', 
+                color: 'var(--violet-bright)',
+                border: '1px solid var(--border-violet)'
+              }}>
+                #{product.code}
+              </span>
+            )}
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+              {product.category}
+            </span>
+          </div>
           <span style={{ fontSize: '0.72rem', color: '#34D399', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
             <Flame size={12} /> Genuine Sivakasi
           </span>

@@ -12,7 +12,7 @@ module Api
 
       if params[:search].present?
         query = "%#{params[:search].downcase}%"
-        products = products.where("LOWER(name) LIKE ? OR LOWER(description) LIKE ?", query, query)
+        products = products.where("LOWER(name) LIKE ? OR LOWER(description) LIKE ? OR LOWER(code) LIKE ?", query, query, query)
       end
 
       case params[:sort]
@@ -184,7 +184,7 @@ module Api
     end
 
     def product_params
-      params.permit(:name, :category, :description, :mrp, :price, :stock_quantity, :image)
+      params.permit(:name, :category, :description, :mrp, :price, :stock_quantity, :image, :code)
     end
   end
 end

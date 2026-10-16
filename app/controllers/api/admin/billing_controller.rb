@@ -1,17 +1,25 @@
 module Api
   module Admin
     class BillingController < BaseController
-      before_action :ensure_admin!
+      before_action :ensure_admin!, only: [:checkout]
 
       def search_products
         query = params[:query].to_s.strip.downcase
         products = Product.all
 
         if query.present?
-          products = products.where("LOWER(name) LIKE ? OR LOWER(category) LIKE ?", "%#{query}%", "%#{query}%")
+          products = products.where(
+            "LOWER(code) = :exact OR LOWER(code) LIKE :like_q OR LOWER(name) LIKE :like_q OR LOWER(category) LIKE :like_q",
+            exact: query,
+            like_q: "%#{query}%"
+          )
+          exact_sql = ActiveRecord::Base.connection.quote(query)
+          products = products.order(Arel.sql("CASE WHEN LOWER(code) = #{exact_sql} THEN 0 ELSE 1 END"), :code, :name)
+        else
+          products = products.order(:code, :name)
         end
 
-        products = products.limit(20)
+        products = products.limit(100)
 
         render json: {
           products: products.map { |p| product_payload(p) }

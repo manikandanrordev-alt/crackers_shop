@@ -10,7 +10,8 @@ import {
   Truck,
   Boxes,
   ShoppingBag,
-  MessageCircle
+  MessageCircle,
+  Receipt
 } from 'lucide-react';
 
 export default function Navbar({ 
@@ -22,6 +23,7 @@ export default function Navbar({
   onLogout, 
   onOpenOrders,
   onOpenAdmin,
+  onOpenBilling,
   onOpenTracking,
   activeTab,
   setActiveTab,
@@ -319,6 +321,28 @@ export default function Navbar({
             >
               <Truck size={15} />
               <span>Track Consignment LR</span>
+            </button>
+
+            <button
+              onClick={onOpenBilling}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 7,
+                padding: '7px 16px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                background: 'transparent',
+                color: 'var(--violet-bright)',
+                fontWeight: 600,
+                fontSize: '0.86rem',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Receipt size={15} />
+              <span>⚡ Fast Billing (POS)</span>
             </button>
           </div>
         </div>

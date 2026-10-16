@@ -32,6 +32,7 @@ export default function StockDetailsPage({
     const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
     const matchesSearch = !search || 
       (p.name && p.name.toLowerCase().includes(search.toLowerCase())) || 
+      (p.code && p.code.toLowerCase().includes(search.toLowerCase())) || 
       (p.category && p.category.toLowerCase().includes(search.toLowerCase()));
     return matchesCat && matchesSearch;
   });
@@ -137,7 +138,7 @@ export default function StockDetailsPage({
           <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
           <input
             type="text"
-            placeholder="Search stock by cracker name..."
+            placeholder="Search by Product Code (e.g. 101) or Name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input-prime"
@@ -158,6 +159,7 @@ export default function StockDetailsPage({
                 color: 'var(--text-secondary)' 
               }}>
                 <th style={{ padding: '14px 16px', width: 60 }}>#</th>
+                <th style={{ padding: '14px 16px', width: 95 }}>Code</th>
                 <th style={{ padding: '14px 16px' }}>Item Name</th>
                 <th style={{ padding: '14px 16px' }}>Category</th>
                 <th style={{ padding: '14px 16px' }}>Unit Rate</th>
@@ -169,7 +171,7 @@ export default function StockDetailsPage({
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <td colSpan={8} style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
                     No products match the selected filters.
                   </td>
                 </tr>
@@ -208,6 +210,20 @@ export default function StockDetailsPage({
                     >
                       <td style={{ padding: '14px 16px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                         {idx + 1}
+                      </td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <span style={{ 
+                          padding: '3px 8px', 
+                          borderRadius: 6, 
+                          fontSize: '0.82rem', 
+                          fontWeight: 700, 
+                          fontFamily: 'monospace', 
+                          background: 'rgba(168, 85, 247, 0.15)', 
+                          color: 'var(--violet-bright)', 
+                          border: '1px solid var(--border-violet)' 
+                        }}>
+                          {p.code || `#${p.id}`}
+                        </span>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ fontWeight: 600, color: '#FFF' }}>{p.name}</div>
