@@ -26,7 +26,8 @@ import {
   Clock,
   Mic,
   MicOff,
-  Volume2
+  Volume2,
+  Download
 } from 'lucide-react';
 import { api } from '../services/api';
 
