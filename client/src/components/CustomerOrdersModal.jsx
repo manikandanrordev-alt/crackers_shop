@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, Truck, Calendar, ShoppingBag, Eye, RefreshCw } from 'lucide-react';
+import { X, Package, Truck, Calendar, ShoppingBag, Eye } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function CustomerOrdersModal({ isOpen, onClose }) {
@@ -58,13 +58,6 @@ export default function CustomerOrdersModal({ isOpen, onClose }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button
-              onClick={fetchOrders}
-              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 6 }}
-              title="Refresh Orders"
-            >
-              <RefreshCw size={18} />
-            </button>
             <button
               onClick={onClose}
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 6 }}

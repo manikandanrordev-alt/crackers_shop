@@ -14,7 +14,6 @@ import {
   Check, 
   X, 
   Truck, 
-  RefreshCw, 
   AlertTriangle,
   ArrowLeft,
   Flame,
@@ -534,9 +533,6 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                     Real-time revenue, inventory health & order velocity
                   </span>
                 </div>
-                <button onClick={loadDashboard} className="btn-secondary-dark" style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-                  <RefreshCw size={15} /> Refresh
-                </button>
               </div>
 
               {/* KPI Metrics Grid */}
@@ -1112,9 +1108,6 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                     Manage customer shipments, update fulfillment status & assign Sivakasi Transport LR copies
                   </span>
                 </div>
-                <button onClick={loadOrders} className="btn-secondary-dark" style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-                  <RefreshCw size={15} /> Refresh
-                </button>
               </div>
 
               {/* LIVE LR & PHONE NUMBER TRACKING CONSOLE */}
@@ -1533,9 +1526,6 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                     Customer accounts, order counts & total spent metrics
                   </span>
                 </div>
-                <button onClick={loadUsers} className="btn-secondary-dark" style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-                  <RefreshCw size={15} /> Refresh
-                </button>
               </div>
 
               <div className="glass-card" style={{ padding: 20 }}>
