@@ -231,6 +231,10 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
     loadProducts();
     loadOrders();
     loadUsers();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   // POS Search products & Load on Billing Tab
@@ -882,27 +886,27 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1200, background: '#050508', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1200, background: '#050508', display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
       {/* Top Header */}
-      <header style={{ height: 64, background: 'rgba(12, 10, 20, 0.98)', borderBottom: '1px solid var(--border-violet)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <header className="admin-header-bar" style={{ height: 64, background: 'rgba(12, 10, 20, 0.98)', borderBottom: '1px solid var(--border-violet)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             onClick={onClose}
             className="btn-secondary-dark"
-            style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+            style={{ padding: '6px 12px', fontSize: '0.82rem', gap: 6, whiteSpace: 'nowrap' }}
           >
-            <ArrowLeft size={16} />
-            <span>Return to Store</span>
+            <ArrowLeft size={15} />
+            <span className="admin-btn-back-label">Return to Store</span>
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={18} color="#FFF" />
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ShieldCheck size={16} color="#FFF" />
             </div>
             <div>
-              <span className="font-heading" style={{ fontSize: '1.1rem', fontWeight: 800, color: '#FFF' }}>
-                RAKSH ADMIN COMMAND CONSOLE
+              <span className="font-heading admin-header-title" style={{ fontSize: '1.05rem', fontWeight: 800, color: '#FFF' }}>
+                ADMIN CONSOLE
               </span>
-              <span style={{ fontSize: '0.72rem', color: '#10B981', marginLeft: 8, fontWeight: 700 }}>
+              <span className="admin-header-badge" style={{ fontSize: '0.7rem', color: '#10B981', marginLeft: 8, fontWeight: 700 }}>
                 ● ONLINE (SIVAKASI)
               </span>
             </div>
@@ -911,16 +915,16 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
 
         {/* Global Toast */}
         {successMsg && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10B981', color: '#34D399', padding: '6px 14px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600 }}>
+          <div className="d-none-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10B981', color: '#34D399', padding: '5px 12px', borderRadius: 8, fontSize: '0.82rem', fontWeight: 600 }}>
             ✓ {successMsg}
           </div>
         )}
       </header>
 
       {/* Main Layout */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Sidebar Navigation */}
-        <nav aria-label="Admin Navigation" style={{ width: 240, background: 'rgba(8, 7, 14, 0.98)', borderRight: '1px solid var(--border-subtle)', padding: '20px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div className="admin-layout-container">
+        {/* Sidebar Navigation - horizontal touch scroll on mobile, vertical sidebar on desktop */}
+        <nav aria-label="Admin Navigation" className="admin-sidebar-nav">
           {[
             { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
             { id: 'billing', label: 'Fast Billing (POS)', icon: Receipt, badge: 'Counter' },
@@ -936,33 +940,35 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className="admin-sidebar-btn"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '12px 14px',
+                  padding: '11px 14px',
                   borderRadius: 10,
                   border: 'none',
                   cursor: 'pointer',
-                  background: isActive ? 'rgba(168, 85, 247, 0.16)' : 'transparent',
+                  background: isActive ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
                   color: isActive ? 'var(--violet-bright)' : 'var(--text-secondary)',
                   fontWeight: isActive ? 700 : 500,
                   transition: 'all 0.2s ease',
                   textAlign: 'left'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <Icon size={18} color={isActive ? 'var(--violet-bright)' : 'var(--text-muted)'} />
-                  <span style={{ fontSize: '0.9rem' }}>{tab.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Icon size={17} color={isActive ? 'var(--violet-bright)' : 'var(--text-muted)'} />
+                  <span style={{ fontSize: '0.88rem' }}>{tab.label}</span>
                 </div>
                 {tab.badge !== undefined && (
                   <span style={{ 
-                    fontSize: '0.72rem', 
+                    fontSize: '0.7rem', 
                     padding: '2px 7px', 
                     borderRadius: 9999, 
                     background: isActive ? 'var(--violet-gradient)' : 'rgba(255,255,255,0.08)',
                     color: isActive ? '#FFFFFF' : 'var(--text-muted)',
-                    fontWeight: 800
+                    fontWeight: 800,
+                    marginLeft: 6
                   }}>
                     {tab.badge}
                   </span>
@@ -973,24 +979,24 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
         </nav>
 
         {/* Content Area */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '24px 32px' }}>
+        <main className="admin-main-content">
           
           {/* TAB 1: DASHBOARD OVERVIEW */}
           {activeTab === 'dashboard' && dashboardData && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <div>
-                  <h2 className="font-heading" style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFF' }}>
+                  <h2 className="font-heading" style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FFF' }}>
                     Store Analytics Overview
                   </h2>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                     Real-time revenue, inventory health & order velocity
                   </span>
                 </div>
               </div>
 
               {/* KPI Metrics Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 16, marginBottom: 32 }}>
+              <div className="admin-kpi-grid">
                 {[
                   { label: 'Total Sales Revenue', val: `₹${dashboardData.metrics.total_revenue}`, color: 'var(--violet-bright)' },
                   { label: 'Total Orders', val: dashboardData.metrics.total_orders, color: '#38BDF8' },
@@ -998,11 +1004,11 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                   { label: 'Total Cracker Catalog', val: dashboardData.metrics.total_products, color: '#34D399' },
                   { label: 'Registered Customers', val: dashboardData.metrics.total_users, color: '#C084FC' }
                 ].map((kpi, idx) => (
-                  <div key={idx} className="glass-card" style={{ padding: '20px' }}>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                  <div key={idx} className="glass-card admin-kpi-card" style={{ padding: '18px' }}>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
                       {kpi.label}
                     </div>
-                    <div className="font-heading" style={{ fontSize: '1.8rem', fontWeight: 800, color: kpi.color, marginTop: 6 }}>
+                    <div className="font-heading admin-kpi-val" style={{ fontSize: '1.7rem', fontWeight: 800, color: kpi.color, marginTop: 4 }}>
                       {kpi.val}
                     </div>
                   </div>
@@ -1032,12 +1038,14 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               )}
 
-              {/* Recent Orders Table */}
-              <div className="glass-card" style={{ padding: 20 }}>
-                <h3 className="font-heading" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FFF', marginBottom: 16 }}>
+              {/* Recent Orders Stream */}
+              <div className="glass-card" style={{ padding: 18 }}>
+                <h3 className="font-heading" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FFF', marginBottom: 14 }}>
                   Recent Orders Stream
                 </h3>
-                <div style={{ overflowX: 'auto' }}>
+                
+                {/* Desktop View */}
+                <div className="admin-desktop-table" style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left', color: 'var(--text-muted)' }}>
@@ -1084,6 +1092,46 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="admin-mobile-cards">
+                  {dashboardData.recent_orders?.length === 0 ? (
+                    <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)' }}>No recent orders</div>
+                  ) : (
+                    dashboardData.recent_orders?.map((ord) => (
+                      <div key={ord.id} className="admin-mobile-card-row">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--violet-bright)', fontSize: '0.95rem' }}>Order #{ord.id}</span>
+                          <span style={{ 
+                            padding: '2px 8px', 
+                            borderRadius: 9999, 
+                            fontSize: '0.72rem', 
+                            fontWeight: 700,
+                            background: ord.status === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(168, 85, 247, 0.2)',
+                            color: ord.status === 'completed' ? '#34D399' : 'var(--violet-light)'
+                          }}>
+                            {ord.status.toUpperCase()}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <div style={{ color: '#FFF', fontWeight: 600, fontSize: '0.88rem' }}>{ord.customer_name}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ord.items_count} pcs • {ord.created_at}</div>
+                          </div>
+                          <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#FFF' }}>₹{ord.total_amount}</div>
+                        </div>
+                        {ord.status !== 'completed' && (
+                          <button
+                            onClick={() => handleUpdateOrderStatus(ord.id, 'completed')}
+                            style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', color: '#34D399', padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 700, width: '100%', marginTop: 4 }}
+                          >
+                            ✓ Mark Completed
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -1237,7 +1285,49 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 24 }}>
+              {/* Mobile Quick Bill Action Bar */}
+              {posCart.length > 0 && (
+                <div 
+                  className="d-none-md"
+                  onClick={() => {
+                    const billEl = document.getElementById('active-bill-section');
+                    if (billEl) billEl.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  style={{
+                    position: 'sticky',
+                    top: 52,
+                    zIndex: 30,
+                    marginBottom: 14,
+                    background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
+                    borderRadius: 14,
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 8px 25px rgba(124, 58, 237, 0.55)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '0.95rem' }}>
+                      🛒 {posCart.length} Items Added to Bill
+                    </div>
+                    <div style={{ color: '#DDD6FE', fontSize: '0.75rem' }}>
+                      Tap to review bill & customer checkout
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '1.2rem' }}>
+                      ₹{posCart.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: '#A7F3D0', fontWeight: 700 }}>
+                      Review & Print →
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="pos-billing-grid">
                 {/* Product Search & Catalog List */}
                 <div className="glass-card" style={{ padding: 20, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ position: 'relative', marginBottom: 14, display: 'flex', gap: 10 }}>
@@ -1340,7 +1430,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
 
                 {/* Bill Cart & Customer Details */}
-                <div className="glass-card" style={{ padding: 20, display: 'flex', flexDirection: 'column' }}>
+                <div id="active-bill-section" className="glass-card" style={{ padding: 20, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                     <h3 className="font-heading" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FFF' }}>
                       Active Bill ({posCart.length} items)
@@ -1508,16 +1598,16 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
           {/* TAB 3: PRODUCTS INVENTORY */}
           {activeTab === 'products' && (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
                 <div>
-                  <h2 className="font-heading" style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFF' }}>
+                  <h2 className="font-heading" style={{ fontSize: '1.5rem', fontWeight: 800, color: '#FFF' }}>
                     Cracker Catalog Management ({products.length})
                   </h2>
                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                     Add new Sivakasi fireworks, edit stock levels and manage wholesale prices
                   </span>
                 </div>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   {selectedProductIds.length > 0 && (
                     <button onClick={handleBulkDelete} className="btn-fire" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
                       <Trash2 size={15} /> Delete Selected ({selectedProductIds.length})
@@ -1537,9 +1627,10 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               </div>
 
-              {/* Products Table */}
-              <div className="glass-card" style={{ padding: 20 }}>
-                <div style={{ overflowX: 'auto' }}>
+              {/* Products Table & Mobile Cards */}
+              <div className="glass-card" style={{ padding: 18 }}>
+                {/* Desktop View */}
+                <div className="admin-desktop-table" style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left' }}>
@@ -1566,7 +1657,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                           <tr key={p.id} style={{ borderBottom: '1px solid var(--border-subtle)', background: isSelected ? 'rgba(245, 158, 11, 0.05)' : 'transparent' }}>
                             <td style={{ padding: '12px' }}>
                               <input 
-                                type="checkbox"
+                                type="checkbox" 
                                 checked={isSelected}
                                 onChange={(e) => {
                                   setSelectedProductIds(e.target.checked ? [...selectedProductIds, p.id] : selectedProductIds.filter(id => id !== p.id));
@@ -1637,6 +1728,91 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                       })}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="admin-mobile-cards">
+                  {products.length === 0 ? (
+                    <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)' }}>No products in catalog</div>
+                  ) : (
+                    products.map((p) => {
+                      const isSelected = selectedProductIds.includes(p.id);
+                      return (
+                        <div key={p.id} className="admin-mobile-card-row" style={{ background: isSelected ? 'rgba(245, 158, 11, 0.08)' : 'rgba(255, 255, 255, 0.03)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <input 
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  setSelectedProductIds(e.target.checked ? [...selectedProductIds, p.id] : selectedProductIds.filter(id => id !== p.id));
+                                }}
+                              />
+                              <span style={{ 
+                                fontFamily: 'monospace', 
+                                fontWeight: 800, 
+                                color: 'var(--violet-bright)', 
+                                background: 'rgba(168,85,247,0.18)', 
+                                padding: '2px 7px', 
+                                borderRadius: 5, 
+                                border: '1px solid var(--border-violet)', 
+                                fontSize: '0.78rem' 
+                              }}>
+                                {p.code || `#${p.id}`}
+                              </span>
+                            </div>
+                            <span className="badge-violet" style={{ fontSize: '0.72rem' }}>{p.category}</span>
+                          </div>
+
+                          <div style={{ color: '#FFF', fontWeight: 700, fontSize: '0.92rem' }}>{p.name}</div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.3)', padding: '6px 10px', borderRadius: 8 }}>
+                            <div>
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Wholesale: </span>
+                              <span style={{ fontWeight: 800, color: 'var(--violet-bright)', fontSize: '0.95rem' }}>₹{p.price}</span>
+                              {p.mrp > p.price && (
+                                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textDecoration: 'line-through', marginLeft: 5 }}>₹{p.mrp}</span>
+                              )}
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Stock: </span>
+                              <span style={{ color: p.stock_quantity > 15 ? '#34D399' : '#F87171', fontWeight: 800, fontSize: '0.88rem' }}>
+                                {p.stock_quantity} left
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                            <button
+                              onClick={() => {
+                                setEditingProduct(p);
+                                setProdForm({
+                                  name: p.name,
+                                  category: p.category,
+                                  mrp: p.mrp,
+                                  price: p.price,
+                                  stock_quantity: p.stock_quantity,
+                                  description: p.description || ''
+                                });
+                                setIsCreatingProduct(true);
+                              }}
+                              className="btn-secondary-dark"
+                              style={{ padding: '6px 14px', fontSize: '0.78rem', gap: 5, flex: 1, justifyContent: 'center' }}
+                            >
+                              <Edit3 size={13} /> Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduct(p.id)}
+                              className="btn-secondary-dark"
+                              style={{ padding: '6px 14px', fontSize: '0.78rem', color: '#F87171', borderColor: 'rgba(239, 68, 68, 0.3)', gap: 5 }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
@@ -1895,8 +2071,9 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 )}
               </div>
 
-              <div className="glass-card" style={{ padding: 20 }}>
-                <div style={{ overflowX: 'auto' }}>
+              <div className="glass-card" style={{ padding: 18 }}>
+                {/* Desktop View */}
+                <div className="admin-desktop-table" style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left', color: 'var(--text-muted)' }}>
@@ -1931,9 +2108,9 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                                 background: ord.status === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(168, 85, 247, 0.2)',
                                 color: ord.status === 'completed' ? '#34D399' : 'var(--violet-light)',
                                 border: '1px solid currentColor',
-                                padding: '4px 8px',
+                                padding: '3px 8px',
                                 borderRadius: 6,
-                                fontSize: '0.78rem',
+                                fontSize: '0.75rem',
                                 fontWeight: 700
                               }}
                             >
@@ -1949,15 +2126,79 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                                 setLrInput(ord.lr_number || '');
                               }}
                               className="btn-outline-violet"
-                              style={{ padding: '4px 10px', fontSize: '0.78rem' }}
+                              style={{ padding: '6px 14px', fontSize: '0.8rem', gap: 6, width: '100%', justifyContent: 'center' }}
                             >
-                              <Truck size={14} /> Assign LR
+                              <Truck size={14} /> Assign Sivakasi LR
                             </button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="admin-mobile-cards">
+                  {orders.length === 0 ? (
+                    <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)' }}>No orders yet</div>
+                  ) : (
+                    orders.map((ord) => (
+                      <div key={ord.id} className="admin-mobile-card-row">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--violet-bright)', fontSize: '0.98rem' }}>Order #{ord.id}</span>
+                          <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#FFF' }}>₹{ord.total_amount}</span>
+                        </div>
+
+                        <div style={{ fontSize: '0.85rem', color: '#FFF' }}>
+                          <strong>{ord.customer_name}</strong>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>📱 {ord.customer_phone}</div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.3)', padding: '6px 10px', borderRadius: 8 }}>
+                          <div style={{ fontSize: '0.78rem' }}>
+                            <span style={{ color: 'var(--text-muted)' }}>LR: </span>
+                            {ord.lr_number ? (
+                              <span style={{ color: '#60A5FA', fontWeight: 700 }}>{ord.lr_number}</span>
+                            ) : (
+                              <span style={{ color: 'var(--text-muted)' }}>Not assigned</span>
+                            )}
+                          </div>
+                          <div>
+                            <select
+                              value={ord.status}
+                              onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
+                              style={{
+                                background: ord.status === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(168, 85, 247, 0.2)',
+                                color: ord.status === 'completed' ? '#34D399' : 'var(--violet-light)',
+                                border: '1px solid currentColor',
+                                padding: '3px 8px',
+                                borderRadius: 6,
+                                fontSize: '0.75rem',
+                                fontWeight: 700
+                              }}
+                            >
+                              <option value="pending">Pending</option>
+                              <option value="completed">Completed</option>
+                              <option value="cancelled">Cancelled</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                          <button
+                            onClick={() => {
+                              setSelectedOrder(ord);
+                              setLrInput(ord.lr_number || '');
+                            }}
+                            className="btn-outline-violet"
+                            style={{ padding: '6px 14px', fontSize: '0.8rem', gap: 6, width: '100%', justifyContent: 'center' }}
+                          >
+                            <Truck size={14} /> Assign Sivakasi LR
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -2007,7 +2248,7 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
                 {/* SECTION 1: SPREADSHEET (CSV) BULK PRODUCT IMPORT */}
                 <div className="glass-card" style={{ padding: 24, border: '1px solid var(--border-violet)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -2200,37 +2441,65 @@ export default function AdminPortal({ shopConfig, user, onConfigUpdated, onClose
                 </div>
               </div>
 
-              <div className="glass-card" style={{ padding: 20 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left', color: 'var(--text-muted)' }}>
-                      <th style={{ padding: '10px 12px' }}>Customer Email</th>
-                      <th style={{ padding: '10px 12px' }}>Role</th>
-                      <th style={{ padding: '10px 12px' }}>Account Status</th>
-                      <th style={{ padding: '10px 12px' }}>Orders Placed</th>
-                      <th style={{ padding: '10px 12px' }}>Total Spend</th>
-                      <th style={{ padding: '10px 12px' }}>Joined Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {usersList.map((u) => (
-                      <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                        <td style={{ padding: '12px', fontWeight: 600, color: '#FFF' }}>{u.email}</td>
-                        <td style={{ padding: '12px' }}>
-                          <span className={u.is_admin ? 'badge-violet' : 'badge-emerald'}>
+              <div className="glass-card" style={{ padding: 18 }}>
+                {/* Desktop View */}
+                <div className="admin-desktop-table" style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--border-subtle)', textAlign: 'left', color: 'var(--text-muted)' }}>
+                        <th style={{ padding: '10px 12px' }}>Customer Email</th>
+                        <th style={{ padding: '10px 12px' }}>Role</th>
+                        <th style={{ padding: '10px 12px' }}>Account Status</th>
+                        <th style={{ padding: '10px 12px' }}>Orders Placed</th>
+                        <th style={{ padding: '10px 12px' }}>Total Spend</th>
+                        <th style={{ padding: '10px 12px' }}>Joined Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usersList.map((u) => (
+                        <tr key={u.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                          <td style={{ padding: '12px', fontWeight: 600, color: '#FFF' }}>{u.email}</td>
+                          <td style={{ padding: '12px' }}>
+                            <span className={u.is_admin ? 'badge-violet' : 'badge-emerald'}>
+                              {u.role.toUpperCase()}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', color: '#10B981', fontWeight: 600 }}>
+                            Active Verified
+                          </td>
+                          <td style={{ padding: '12px' }}>{u.orders_count} orders</td>
+                          <td style={{ padding: '12px', fontWeight: 700, color: '#34D399' }}>₹{u.total_spent}</td>
+                          <td style={{ padding: '12px', color: 'var(--text-muted)' }}>{u.created_at}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Cards View */}
+                <div className="admin-mobile-cards">
+                  {usersList.length === 0 ? (
+                    <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)' }}>No customers registered yet</div>
+                  ) : (
+                    usersList.map((u) => (
+                      <div key={u.id} className="admin-mobile-card-row">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 700, color: '#FFF', fontSize: '0.9rem', wordBreak: 'break-all' }}>{u.email}</span>
+                          <span className={u.is_admin ? 'badge-violet' : 'badge-emerald'} style={{ fontSize: '0.7rem' }}>
                             {u.role.toUpperCase()}
                           </span>
-                        </td>
-                        <td style={{ padding: '12px', color: '#10B981', fontWeight: 600 }}>
-                          Active Verified
-                        </td>
-                        <td style={{ padding: '12px' }}>{u.orders_count} orders</td>
-                        <td style={{ padding: '12px', fontWeight: 700, color: '#34D399' }}>₹{u.total_spent}</td>
-                        <td style={{ padding: '12px', color: 'var(--text-muted)' }}>{u.created_at}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{u.orders_count} orders placed</span>
+                          <span style={{ fontWeight: 800, color: '#34D399', fontSize: '0.95rem' }}>₹{u.total_spent}</span>
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-subtle)', paddingTop: 6 }}>
+                          Member since: {u.created_at}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           )}

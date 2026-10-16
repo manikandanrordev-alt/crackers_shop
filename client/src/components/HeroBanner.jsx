@@ -54,7 +54,7 @@ export default function HeroBanner({ shopConfig, onExplore, onOpenPriceList, onO
       }} />
 
       <div style={{ maxWidth: 1320, margin: '0 auto', position: 'relative', zIndex: 2 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 32, alignItems: 'center' }}>
+        <div className="hero-layout-grid">
           
           {/* Left Column: Headlines & CTA */}
           <div>
@@ -95,7 +95,7 @@ export default function HeroBanner({ shopConfig, onExplore, onOpenPriceList, onO
             </div>
 
             {/* Trust Badges */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 12, paddingTop: 16, borderTop: '1px solid var(--border-subtle)' }}>
               <div>
                 <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--violet-light)', fontFamily: 'var(--font-heading)' }}>
                   Flat {discountPct}% Off

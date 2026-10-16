@@ -58,6 +58,8 @@ Rails.application.routes.draw do
       # Fast Billing (POS)
       get "billing/products", to: "billing#search_products"
       post "billing/checkout", to: "billing#checkout"
+      get "billing/tts", to: "billing#tts"
+      post "billing/ai_parse", to: "billing#ai_parse"
     end
   end
 

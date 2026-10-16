@@ -50,7 +50,7 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
       onClick={() => onQuickView(product)}
     >
       {/* Top Image Container */}
-      <div style={{ position: 'relative', height: 210, overflow: 'hidden', background: '#050508' }}>
+      <div className="card-img-container">
         <img 
           src={displayImage} 
           alt={product.name}
@@ -127,7 +127,7 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
       </div>
 
       {/* Content Body */}
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+      <div className="card-content-body">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {product.code && (
@@ -144,37 +144,36 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
                 #{product.code}
               </span>
             )}
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
               {product.category}
             </span>
           </div>
-          <span style={{ fontSize: '0.72rem', color: '#34D399', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
+          <span className="d-none-sm" style={{ fontSize: '0.72rem', color: '#34D399', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
             <Flame size={12} /> Genuine Sivakasi
           </span>
         </div>
 
         <h3 
-          className="font-heading" 
-          style={{ fontSize: '1.05rem', fontWeight: 700, color: '#FFF', marginBottom: 10, lineHeight: 1.3, minHeight: '2.6em' }}
+          className="font-heading card-title-text" 
           title={product.name}
         >
           {product.name}
         </h3>
 
         {/* Pricing Matrix */}
-        <div style={{ marginTop: 'auto', marginBottom: 14 }}>
+        <div style={{ marginTop: 'auto', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--violet-light)', fontFamily: 'var(--font-heading)' }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--violet-light)', fontFamily: 'var(--font-heading)' }}>
               ₹{product.price}
             </span>
             {product.mrp > product.price && (
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
                 ₹{product.mrp}
               </span>
             )}
           </div>
           {product.savings > 0 && (
-            <div style={{ fontSize: '0.75rem', color: '#34D399', fontWeight: 600, marginTop: 2 }}>
+            <div className="d-none-sm" style={{ fontSize: '0.72rem', color: '#34D399', fontWeight: 600, marginTop: 2 }}>
               Save ₹{product.savings} factory wholesale discount
             </div>
           )}
@@ -183,7 +182,7 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
         {/* Actions Area */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={(e) => e.stopPropagation()}>
           {/* Quantity Stepper */}
-          <div style={{ 
+          <div className="card-stepper-wrap" style={{ 
             display: 'flex', 
             alignItems: 'center', 
             background: 'rgba(255, 255, 255, 0.05)', 
@@ -214,11 +213,11 @@ export default function ProductCard({ product, onAddToCart, onQuickView }) {
           <button
             onClick={handleAdd}
             disabled={isOutOfStock || isAdding}
-            className="btn-prime"
+            className="btn-prime card-add-btn"
             style={{ 
               flex: 1, 
-              padding: '9px 12px', 
-              fontSize: '0.85rem',
+              padding: '8px 12px', 
+              fontSize: '0.82rem',
               background: isOutOfStock 
                 ? 'rgba(255, 255, 255, 0.08)' 
                 : justAdded 

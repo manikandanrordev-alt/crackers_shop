@@ -45,15 +45,15 @@ export default function Navbar({
       </div>
 
       {/* Main Top Header Bar */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+      <div className="nav-container-responsive">
         {/* Brand Logo & Name */}
         <div 
           onClick={() => { setActiveTab('shop'); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', textDecoration: 'none', flexShrink: 0 }}
+          className="nav-brand-wrap"
         >
           <div style={{ 
-            width: 38, 
-            height: 38, 
+            width: 36, 
+            height: 36, 
             borderRadius: '50%', 
             background: 'radial-gradient(circle, #C084FC 0%, #7E22CE 85%)',
             display: 'flex', 
@@ -63,33 +63,33 @@ export default function Navbar({
             border: '2px solid rgba(216, 180, 254, 0.5)',
             flexShrink: 0
           }}>
-            <Flame size={20} color="#FFFFFF" />
+            <Flame size={19} color="#FFFFFF" />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
-              <span className="font-display" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFF', lineHeight: 1.2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+              <span className="font-display nav-brand-title" style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFF', lineHeight: 1.2 }}>
                 {shopName}
               </span>
-              <span style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(168, 85, 247, 0.18)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: 4, color: '#C084FC', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.62rem', padding: '1px 5px', background: 'rgba(168, 85, 247, 0.18)', border: '1px solid rgba(168, 85, 247, 0.4)', borderRadius: 4, color: '#C084FC', fontWeight: 700 }}>
                 Sivakasi
               </span>
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+            <div className="nav-brand-sub" style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
               Direct Factory Wholesale & Retail
             </div>
           </div>
         </div>
 
-        {/* Search Bar - Center and Spacious */}
-        <div style={{ flex: '1 1 360px', maxWidth: 460, position: 'relative' }}>
-          <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+        {/* Search Bar - Centers on desktop, full-width row on mobile */}
+        <div className="nav-search-wrap">
+          <Search size={15} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
             placeholder="Search crackers by name (e.g. sparklers, rockets, shots)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input-prime"
-            style={{ paddingLeft: 38, paddingRight: 32, height: 38, fontSize: '0.82rem', borderRadius: 9999, width: '100%' }}
+            style={{ paddingLeft: 38, paddingRight: 32, height: 36, fontSize: '0.82rem', borderRadius: 9999, width: '100%' }}
           />
           {searchQuery && (
             <button 
@@ -102,28 +102,28 @@ export default function Navbar({
         </div>
 
         {/* Right Header Utilities: Track, Orders, Cart, User */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div className="nav-actions-wrap">
           {/* Quick Track Button */}
           <button
             onClick={onOpenTracking}
-            className="btn-outline-violet"
-            style={{ padding: '6px 13px', fontSize: '0.8rem', gap: 6, whiteSpace: 'nowrap' }}
+            className="btn-outline-violet nav-btn-compact"
+            style={{ padding: '6px 12px', fontSize: '0.78rem', gap: 5, whiteSpace: 'nowrap' }}
             title="Track parcel with Sivakasi LR Number or Phone Number"
           >
             <Truck size={14} />
-            <span>Track LR</span>
+            <span className="nav-btn-label">Track LR</span>
           </button>
 
           {/* Orders History if logged in */}
           {user && (
             <button 
               onClick={onOpenOrders}
-              className="btn-secondary-dark"
-              style={{ padding: '6px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+              className="btn-secondary-dark nav-btn-compact"
+              style={{ padding: '6px 11px', fontSize: '0.78rem', whiteSpace: 'nowrap' }}
               title="My Orders"
             >
               <Package size={14} />
-              <span>Orders</span>
+              <span className="nav-btn-label">Orders</span>
             </button>
           )}
 
@@ -131,11 +131,11 @@ export default function Navbar({
           {user?.is_admin && (
             <button 
               onClick={onOpenAdmin}
-              className="btn-prime"
-              style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', whiteSpace: 'nowrap' }}
+              className="btn-prime nav-btn-compact"
+              style={{ padding: '6px 11px', fontSize: '0.78rem', background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', whiteSpace: 'nowrap' }}
             >
               <ShieldCheck size={14} />
-              <span>Admin</span>
+              <span className="nav-btn-label">Admin</span>
             </button>
           )}
 
@@ -143,27 +143,27 @@ export default function Navbar({
           {!user?.is_admin && (
             <button 
               onClick={onOpenCart}
-              className="btn-prime"
-              style={{ padding: '6px 15px', position: 'relative', whiteSpace: 'nowrap' }}
+              className="btn-prime nav-btn-compact"
+              style={{ padding: '6px 12px', position: 'relative', whiteSpace: 'nowrap' }}
             >
-              <ShoppingCart size={16} />
-              <span>Cart</span>
+              <ShoppingCart size={15} />
+              <span className="nav-btn-label">Cart</span>
               {totalCartCount > 0 && (
                 <span style={{ 
                   background: '#F43F5E', 
                   color: '#FFF', 
-                  fontSize: '0.7rem', 
+                  fontSize: '0.68rem', 
                   fontWeight: 800, 
-                  padding: '1px 6px', 
+                  padding: '1px 5px', 
                   borderRadius: 9999, 
-                  marginLeft: 4,
+                  marginLeft: 3,
                   boxShadow: '0 0 8px rgba(244, 63, 94, 0.6)'
                 }}>
                   {totalCartCount}
                 </span>
               )}
               {totalCartPrice > 0 && (
-                <span style={{ marginLeft: 6, opacity: 0.95, fontSize: '0.8rem', fontWeight: 700 }}>
+                <span className="d-none-sm" style={{ marginLeft: 5, opacity: 0.95, fontSize: '0.78rem', fontWeight: 700 }}>
                   ₹{totalCartPrice}
                 </span>
               )}
@@ -175,29 +175,37 @@ export default function Navbar({
             {user ? (
               <button 
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="btn-secondary-dark"
-                style={{ padding: '6px 11px', gap: 6, whiteSpace: 'nowrap' }}
+                className="btn-secondary-dark nav-btn-compact"
+                style={{ padding: '6px 10px', gap: 5, whiteSpace: 'nowrap' }}
               >
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(168, 85, 247, 0.25)', border: '1px solid var(--violet-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: '#C084FC' }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(168, 85, 247, 0.25)', border: '1px solid var(--violet-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', fontWeight: 700, color: '#C084FC' }}>
                   {user.email[0].toUpperCase()}
                 </div>
-                <span style={{ fontSize: '0.8rem' }}>{user.name || user.email.split('@')[0]}</span>
+                <span className="nav-btn-label" style={{ fontSize: '0.78rem' }}>{user.name || user.email.split('@')[0]}</span>
               </button>
             ) : (
               <button 
                 onClick={onOpenAuth}
-                className="btn-outline-violet"
-                style={{ padding: '6px 13px', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+                className="btn-outline-violet nav-btn-compact"
+                style={{ padding: '6px 12px', fontSize: '0.78rem', whiteSpace: 'nowrap' }}
               >
                 <User size={14} />
-                <span>Login</span>
+                <span className="nav-btn-label">Login</span>
               </button>
+            )}
+
+            {/* Backdrop for outside click */}
+            {userDropdownOpen && (
+              <div
+                onClick={() => setUserDropdownOpen(false)}
+                style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'transparent' }}
+              />
             )}
 
             {/* User Dropdown */}
             {userDropdownOpen && user && (
               <div 
-                className="glass-panel"
+                className="glass-panel user-dropdown-menu"
                 style={{ 
                   position: 'absolute', 
                   right: 0, 

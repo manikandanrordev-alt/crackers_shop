@@ -19,7 +19,14 @@ import { ShieldCheck, Flame, Phone, MapPin, Mail, Award, LayoutGrid, List, Truck
 export default function App() {
   // App Core State
   const [shopConfig, setShopConfig] = useState(null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const u = localStorage.getItem('raksh_user');
+      return u ? JSON.parse(u) : null;
+    } catch (_e) {
+      return null;
+    }
+  });
   const [cart, setCart] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -37,8 +44,14 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [adminInitialTab, setAdminInitialTab] = useState('dashboard');
+  const [isAdminOpen, setIsAdminOpen] = useState(() => {
+    const p = (typeof window !== 'undefined' ? window.location.pathname || '' : '').replace(/\/$/, '');
+    return p === '/admin' || p === '/billing';
+  });
+  const [adminInitialTab, setAdminInitialTab] = useState(() => {
+    const p = (typeof window !== 'undefined' ? window.location.pathname || '' : '').replace(/\/$/, '');
+    return p === '/billing' ? 'billing' : 'dashboard';
+  });
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [recentOrderSuccess, setRecentOrderSuccess] = useState(null);
 
@@ -130,11 +143,18 @@ export default function App() {
 
       // Check current user
       const authData = await api.getMe().catch(() => ({ logged_in: false, user: null }));
-      if (authData?.logged_in) {
+      if (authData?.logged_in && authData.user) {
         setUser(authData.user);
-        if (window.location.pathname === '/admin' && authData.user?.is_admin) {
+        try { localStorage.setItem('raksh_user', JSON.stringify(authData.user)); } catch (_e) {}
+        const p = (window.location.pathname || '').replace(/\/$/, '');
+        if ((p === '/admin' || p === '/billing') && authData.user?.is_admin) {
           setIsAdminOpen(true);
+          setAdminInitialTab(p === '/billing' ? 'billing' : 'dashboard');
         }
+      } else {
+        // If server says not logged in, clear stale cache
+        setUser(null);
+        try { localStorage.removeItem('raksh_user'); } catch (_e) {}
       }
 
       // Load Cart
@@ -337,7 +357,7 @@ export default function App() {
             />
 
             {/* Content Container */}
-            <div id="products-section" style={{ maxWidth: 1380, margin: '0 auto', padding: '0 20px 60px' }}>
+            <div id="products-section" className="main-content-pad" style={{ maxWidth: 1380, margin: '0 auto', padding: '0 20px 60px', width: '100%', boxSizing: 'border-box' }}>
               
               {/* Category Pills Bar */}
               <CategoryPills
@@ -347,20 +367,20 @@ export default function App() {
               />
 
               {/* Controls Bar: Sort, View mode & Count */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 24, padding: '12px 18px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-subtle)', borderRadius: 12 }}>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 20, padding: '10px 14px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-subtle)', borderRadius: 12 }}>
+                <div style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
                   Showing <strong style={{ color: '#FFF' }}>{products.length}</strong> Sivakasi Cracker Products
                   {activeCategory !== 'All' && <span> in <strong style={{ color: 'var(--violet-bright)' }}>{activeCategory}</strong></span>}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   {/* Sort Selector */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Sort by:</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.82rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Sort:</span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      style={{ background: '#0C0A14', border: '1px solid var(--border-subtle)', color: '#FFF', padding: '6px 12px', borderRadius: 8, fontSize: '0.85rem' }}
+                      style={{ background: '#0C0A14', border: '1px solid var(--border-subtle)', color: '#FFF', padding: '5px 10px', borderRadius: 8, fontSize: '0.82rem' }}
                     >
                       <option value="featured">✨ Featured & New</option>
                       <option value="price_asc">Price: Low to High</option>
@@ -369,14 +389,14 @@ export default function App() {
                   </div>
 
                   {/* View Mode Toggle */}
-                  <div style={{ display: 'flex', gap: 4, background: 'rgba(0,0,0,0.5)', padding: 3, borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ display: 'flex', gap: 3, background: 'rgba(0,0,0,0.5)', padding: 3, borderRadius: 8, border: '1px solid var(--border-subtle)' }}>
                     <button
                       onClick={() => setViewMode('grid')}
                       style={{
                         background: viewMode === 'grid' ? 'var(--violet-gradient)' : 'none',
                         color: viewMode === 'grid' ? '#FFFFFF' : 'var(--text-muted)',
                         border: 'none',
-                        padding: '6px 10px',
+                        padding: '5px 9px',
                         borderRadius: 6,
                         cursor: 'pointer',
                         display: 'flex',
@@ -384,7 +404,7 @@ export default function App() {
                       }}
                       title="Grid Cards View"
                     >
-                      <LayoutGrid size={16} />
+                      <LayoutGrid size={15} />
                     </button>
                     <button
                       onClick={() => setViewMode('table')}
@@ -392,7 +412,7 @@ export default function App() {
                         background: viewMode === 'table' ? 'var(--violet-gradient)' : 'none',
                         color: viewMode === 'table' ? '#FFFFFF' : 'var(--text-muted)',
                         border: 'none',
-                        padding: '6px 10px',
+                        padding: '5px 9px',
                         borderRadius: 6,
                         cursor: 'pointer',
                         display: 'flex',
@@ -400,7 +420,7 @@ export default function App() {
                       }}
                       title="Table View"
                     >
-                      <List size={16} />
+                      <List size={15} />
                     </button>
                   </div>
                 </div>
@@ -425,8 +445,8 @@ export default function App() {
                   </button>
                 </div>
               ) : viewMode === 'grid' ? (
-                /* Luxury Cards Grid */
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+                /* Luxury Cards Responsive Grid */
+                <div className="products-grid-responsive">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -541,9 +561,9 @@ export default function App() {
       </main>
 
       {/* Luxury Footer */}
-      <footer style={{ background: '#050508', borderTop: '1px solid var(--border-violet)', padding: '50px 20px 24px' }}>
-        <div style={{ maxWidth: 1380, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 36, marginBottom: 40 }}>
+      <footer style={{ background: '#050508', borderTop: '1px solid var(--border-violet)', padding: '40px 16px 24px', width: '100%' }}>
+        <div style={{ maxWidth: 1380, margin: '0 auto', width: '100%' }}>
+          <div className="footer-grid-responsive">
             <div>
               <div className="font-display" style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--violet-bright)', marginBottom: 12 }}>
                 {shopConfig?.shop_name || 'Raksh Crackers'}

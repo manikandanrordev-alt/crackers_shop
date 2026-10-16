@@ -50,6 +50,15 @@ async function request(endpoint, options = {}) {
     throw err;
   }
 
+  if (data.token) {
+    setAuthToken(data.token);
+  }
+  if (data.user) {
+    try {
+      localStorage.setItem('raksh_user', JSON.stringify(data.user));
+    } catch (_e) {}
+  }
+
   return data;
 }
 
@@ -59,7 +68,11 @@ export const api = {
   login: (email, password) => request('/auth/login', { method: 'POST', body: { email, password } }),
   register: (email, password, password_confirmation) => 
     request('/auth/register', { method: 'POST', body: { email, password, password_confirmation } }),
-  logout: () => request('/auth/logout', { method: 'DELETE' }),
+  logout: () => {
+    localStorage.removeItem('raksh_user');
+    setAuthToken('');
+    return request('/auth/logout', { method: 'DELETE' });
+  },
   demoLogin: (role) => request('/auth/demo_login', { method: 'POST', body: { role } }),
 
   // Shop Config
@@ -121,7 +134,9 @@ export const api = {
 
   updateAdminOrder: (id, orderData) => request(`/admin/orders/${id}`, { method: 'PATCH', body: orderData }),
 
-  // POS Fast Billing
+  // POS Fast Billing & AI Voice
   searchBillingProducts: (query) => request(`/admin/billing/products?query=${encodeURIComponent(query || '')}`),
-  checkoutBilling: (billData) => request('/admin/billing/checkout', { method: 'POST', body: billData })
+  checkoutBilling: (billData) => request('/admin/billing/checkout', { method: 'POST', body: billData }),
+  aiVoiceParse: (query, cart = [], discount = 0) => request('/admin/billing/ai_parse', { method: 'POST', body: { query, cart, discount } }),
+  ttsAudioUrl: (text) => `/api/admin/billing/tts?text=${encodeURIComponent(text || '')}`
 };
